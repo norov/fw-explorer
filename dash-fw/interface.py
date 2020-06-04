@@ -3,6 +3,11 @@ import dash_core_components as dcc
 import dash_html_components as html
 import utils.dash_reusable_components as drc
 import numpy as np
+import pandas as pd
+
+cparams = pd.DataFrame(columns ={"Model", "Phi", "Chi", "Eta",
+                                 "alpha_w", "alpha_O", "alpha_p",
+                                 "sigma_f", "sigma_c"})
 
 def run_once(f):
     def wrapper(*args, **kwargs):
@@ -57,7 +62,6 @@ def div_input_line(name, id,  value):
             ], style={
                 "display": "flex",
                 "width": "95%",
-                "padding": "0px 0px 0px 0px",
                 },
             )
 
@@ -65,11 +69,24 @@ def card1():
     return drc.Card(
         id="first-card",
         children=[
+            drc.NamedRadioItems(
+                name='Model',
+                id='radio-svm-parameter-shrinking',
+                labelStyle={
+                    'margin-right': '7px',
+                    'display': 'inline-block'
+                    },
+                options=[
+                    {'label': 'DCA', 'value': 'DCA'},
+                    {'label': 'TPA', 'value': 'TPA'},
+                    ],
+                value='TPA',
+                ),
             dcc_dd_sim_type(),
             div_input_line(
                 ["Phi", "Chi", "Eta"],
                 ["Phi", "Chi", "Eta"],
-                [1, 1.2, 0.991, 1580],
+                [1, 1.2, 0.991],
                 ),
             div_input_line(
                 ["alpha_w", "alpha_O", "alpha_p"],
@@ -131,8 +148,7 @@ def card2():
 
 @run_once
 def dcc_dd_sim_type():
-    return drc.NamedDropdown(
-        name="Model",
+    return dcc.Dropdown(
         id="dcc_dd_sim_type",
         options=[
             {
