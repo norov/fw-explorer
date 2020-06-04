@@ -86,7 +86,7 @@ def calculate_returns(given_params, calibrated_params):
     # returns
     return log_r, Nc
 
-gparams = {"mu": ml, "beta": ss, "num_runs": nr, "periods": periods}
+gparams = {"mu": 0.01, "beta": 1, "num_runs": 200, "periods": 500}
 
 cparams = {
     "phi": 1.00,  ##AK: demand senstivity of the fundamental agents to price deviations.

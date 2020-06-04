@@ -97,20 +97,6 @@ app.css.append_css({
     ],
 )
 def update_figure(n_clicks, test_model, ml, ss, nr, periods):
-    given_params = {"mu": ml, "beta": ss, "num_runs": nr, "periods": periods}
-
-    # TODO: Take from file
-    calibrated_params = {
-        "phi": 1.00,  ##AK: demand senstivity of the fundamental agents to price deviations.
-        "chi": 1.20,  ##AK: demand senstivity of the chartest agents to price deviations.
-        "eta": 0.991,  ##AK: performance memory (backward looking ewma)
-        "alpha_w": 1580,  ## AK: importance of backward looking performance
-        "alpha_O": 0,  ##a basic predisposition toward the fundmental strategy
-        "alpha_p": 0,  ##misalignment; version to a fundamental strategy when price becomes too far from fundamental
-        "sigma_f": 0.681,  ##noise in the fundamental agent demand
-        "sigma_c": 1.724,  ##noise in the chartest agent demand
-    }
-
     ret = generate_constraint(given_params, calibrated_params, run_type=test_model)
     exog = ret["exog_signal"]
     Nc = ret["Nc"]
