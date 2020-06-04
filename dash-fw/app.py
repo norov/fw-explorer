@@ -6,10 +6,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import numpy as np
 from dash.dependencies import Input, Output, State
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn import datasets
-from sklearn.svm import SVC
 
 import utils.figures as figs
 

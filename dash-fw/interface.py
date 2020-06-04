@@ -47,11 +47,45 @@ def div_header(title, link, banner, link2) :
             ],
         )
 
+def div_input_line(name, id,  value):
+    return html.Div([
+            drc.NamedInput(
+                name=name[i],
+                id=id[i],
+                value=value[i]
+                ) for i in range(len(name))
+            ], style={
+                "display": "flex",
+                "width": "95%",
+                "padding": "0px 0px 0px 0px",
+                },
+            )
+
 def card1():
     return drc.Card(
         id="first-card",
         children=[
             dcc_dd_sim_type(),
+            div_input_line(
+                ["Phi", "Chi", "Eta"],
+                ["Phi", "Chi", "Eta"],
+                [1, 1.2, 0.991, 1580],
+                ),
+            div_input_line(
+                ["alpha_w", "alpha_O", "alpha_p"],
+                ["alpha_w", "alpha_O", "alpha_p"],
+                [1580, 0, 0],
+                ),
+            div_input_line(
+                ["sigma_f", "sigma_c"],
+                ["sigma_f", "sigma_c"],
+                [0.681, 1.724],
+                ),
+            div_input_line(
+                ["Periods", "Paths"],
+                ["periods", "paths"],
+                [500, 200],
+                ),
             drc.NamedSlider(
                 name="Market Liquidity",
                 id="slider-ml",
@@ -80,23 +114,6 @@ def card1():
                         "placement": "top"},
                 value=1
                 ),
-            html.Div([
-                drc.NamedInput(
-                    name="Periods",
-                    id="periods",
-                    value=500
-                    ),
-                drc.NamedInput(
-                    name="paths",
-                    id="paths",
-                    value=200
-                    )
-                ], style={
-                    "display": "flex",
-                    "width": "90%",
-                    "padding": "2rem 0",
-                    },
-                )
             ]
         )
     
