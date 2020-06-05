@@ -173,47 +173,6 @@ def dcc_dd_sim_type():
         )
 
 
-def div_shrinking_container():
-    return html.Div(
-        id="shrinking-container",
-        children=[
-            html.P(children="Shrinking"),
-            dcc.RadioItems(
-                id="radio-svm-parameter-shrinking",
-                labelStyle={
-                    "margin-right": "7px",
-                    "display": "inline-block",
-                    },
-                options=[
-                    {
-                        "label": " Enabled",
-                        "value": "True",
-                        },
-                    {
-                        "label": " Disabled",
-                        "value": "False",
-                        },
-                    ],
-                value="True",
-                ),
-            ],
-        )
-
-
-def dcc_const_c():
-    return drc.NamedSlider(
-        name="Cost (C)",
-        id="slider-svm-parameter-C-power",
-        min=-2,
-        max=4,
-        value=0,
-        marks={
-            i: "{}".format(10 ** i)
-            for i in range(-2, 5)
-            },
-        )
-
-
 def card3():
     return drc.Card(
         id="last-card",
