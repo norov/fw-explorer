@@ -12,6 +12,10 @@ import utils.figures as figs
 from interface import *
 from abm_logic import *
 
+import pandas as pd
+
+fw_params = pd.read_csv('data.csv')
+
 app = dash.Dash(
     __name__,
     meta_tags=[
@@ -61,6 +65,30 @@ app.layout = html.Div(
         div_panel(),
     ]
 )
+
+
+@app.callback(
+    [
+        Output("Phi",	  "value"),
+        Output("Chi",	  "value"),
+        Output("Eta",	  "value"),
+        Output("alpha_w", "value"),
+        Output("alpha_o", "value"),
+        Output("alpha_n", "value"),
+        Output("alpha_p", "value"),
+        Output("sigma_f", "value"),
+        Output("sigma_c", "value"),
+    ],
+    [
+        Input("model",     "value"),
+        Input("model-type","value"),
+    ],
+)
+def set_params(model, typ):
+    print(typ, model)
+    vals = fw_params[fw_params['Type']==typ][fw_params['Model'] == model].values
+    print(vals)
+    return list(vals[0,2:])
 
 
 @app.callback(
