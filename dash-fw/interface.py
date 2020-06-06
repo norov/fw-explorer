@@ -53,6 +53,7 @@ def div_input_line(name, id,  value):
             drc.NamedInput(
                 name=name[i],
                 id=id[i],
+                type="number",
                 value=value[i]
                 ) for i in range(len(name))
             ], style={
@@ -114,7 +115,7 @@ def card1():
             div_input_line(
                 ["Periods", "Paths"],
                 ["periods", "paths"],
-                [500, 200],
+                [500, 4],
                 ),
             drc.NamedSlider(
                 name="Market Liquidity",

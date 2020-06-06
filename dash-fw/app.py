@@ -7,10 +7,16 @@ import dash_html_components as html
 import numpy as np
 from dash.dependencies import Input, Output, State
 
+import plotly
+import plotly.graph_objects as go
+import plotly.figure_factory as ff
+import plotly.express as px
+
 import utils.figures as figs
 
 from interface import *
 from abm_logic import *
+from abm_graphs import *
 
 import pandas as pd
 
@@ -56,6 +62,7 @@ def generate_data(n_samples, dataset, noise):
         raise ValueError(
             "Data type incorrectly specified. Please choose an existing dataset."
         )
+
 
 
 app.layout = html.Div(
@@ -152,16 +159,7 @@ def set_options(fw_params):
         State("slider-ss", "value"),
         State("periods", "value"),
         State("paths", "value"),
-        State("model", "value"),
-        State("Phi",	  "value"),
-        State("Chi",	  "value"),
-        State("Eta",	  "value"),
-        State("alpha_w", "value"),
-        State("alpha_o", "value"),
-        State("alpha_n", "value"),
-        State("alpha_p", "value"),
-        State("sigma_f", "value"),
-        State("sigma_c", "value"),
+        State("model", "value")
     ],
 )
 def update_graph(
@@ -171,45 +169,38 @@ def update_graph(
     periods,
     paths,
     sim_type,
-    Phi",	  "value"),
-    Chi",	  "value"),
-    Eta",	  "value"),
-    alpha_w", "value"),
-    alpha_o", "value"),
-    alpha_n", "value"),
-    alpha_p", "value"),
-    sigma_f", "value"),
-    sigma_c", "value"),
 ):
     t_start = time.time()
 
     gparams = {"mu": ml, "beta": ss, "num_runs": paths, "periods": periods}
     
     ret = generate_constraint(given_params = gparams, run_type="WP")
+    fig = generate_graph(ret)
+    
     return [
         html.Div(
             id="svm-graph-container",
             children=dcc.Loading(
                 className="graph-wrapper",
-                children=dcc.Graph(id="graph-sklearn-svm", figure=None),
-                style={"display": "none"},
+                children=dcc.Graph(id="graph-sklearn-svm", figure=fig),
+                style={"display": "block"},
             ),
         ),
-        html.Div(
-            id="graphs-container",
-            children=[
-                dcc.Loading(
-                    className="graph-wrapper",
-                    children=dcc.Graph(id="graph-line-roc-curve", figure=None),
-                ),
-                dcc.Loading(
-                    className="graph-wrapper",
-                    children=dcc.Graph(
-                        id="graph-pie-confusion-matrix", figure=None
-                    ),
-                ),
-            ],
-        ),
+        # html.Div(
+        #     id="graphs-container",
+        #     children=[
+        #         dcc.Loading(
+        #             className="graph-wrapper",
+        #             children=dcc.Graph(id="graph-line-roc-curve", figure=None),
+        #         ),
+        #         dcc.Loading(
+        #             className="graph-wrapper",
+        #             children=dcc.Graph(
+        #                 id="graph-pie-confusion-matrix", figure=None
+        #             ),
+        #         ),
+        #     ],
+        # ),
     ]
 
 # Running the server
