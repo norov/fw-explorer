@@ -115,7 +115,7 @@ def card1():
             div_input_line(
                 ["Periods", "Paths"],
                 ["periods", "paths"],
-                [500, 4],
+                [500, 100],
                 ),
             drc.NamedSlider(
                 name="Market Liquidity",

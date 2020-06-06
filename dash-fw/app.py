@@ -175,7 +175,7 @@ def update_graph(
     gparams = {"mu": ml, "beta": ss, "num_runs": paths, "periods": periods}
     
     ret = generate_constraint(given_params = gparams, run_type="WP")
-    fig = generate_graph(ret)
+    fig = generate_graph_prod(ret)
     
     return [
         html.Div(

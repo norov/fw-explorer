@@ -6,6 +6,75 @@ import plotly.graph_objects as go
 import plotly.figure_factory as ff
 import plotly.express as px
 
+
+# Generate 3 graphs based on dict returned by generate constraints:
+# Prices paths, Returns, Chartists share
+def generate_graph_prod(ret):
+    
+    # Extract dict
+    simple_R = ret["exog_signal"][0, :, :]
+    prices = np.cumprod(simple_R +1,0)
+    Nc = ret["Nc"][:, :]
+    
+    len_sim = simple_R.shape[0]
+    num_sim = simple_R.shape[1]
+    
+    # x axis
+    x = [j for j in range(len_sim)]
+
+    # Create figure
+    fig = make_subplots(
+        rows=4, cols=1,
+        specs=[[{"rowspan": 2}],
+               [None],
+               [{}],
+               [{}]],
+        horizontal_spacing = 0.05,
+        vertical_spacing = 0.15,
+        shared_xaxes=True,
+        subplot_titles=("Simulated Prices","Simulated Returns", "Chartists share"))
+
+    # Generate graphs for each simulation
+    for i in range(prices.shape[1]):
+        
+        # Prices
+        fig.add_trace(go.Scatter(x=x,y=prices[:,i],mode='lines',
+                                 name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
+                                 marker=dict(color='rgba(255,255,255,0.3)'),line=dict(width=0.7)),row=1, col=1)
+        
+        # Returns
+        fig.add_trace(go.Scatter(x=x,y=simple_R[:,i],mode='lines',
+                                 name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
+                                 marker=dict(color='rgba(255,255,255,0.3)'),line=dict(width=0.7),
+                                 showlegend=False),row=3, col=1)
+        
+        # Chartists      
+        fig.add_trace(go.Scatter(x=x,y=Nc[:,i],mode='lines',
+                                 name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
+                                 marker=dict(color='rgba(255,255,255,0.3)'),line=dict(width=0.7),
+                                 showlegend=False),row=4, col=1)
+    
+    # Layout
+    fig.update_xaxes(showgrid=False,zeroline=False,color='white', row=1, col=1)
+    fig.update_yaxes(showgrid=False,zeroline=False,color='white', row=1, col=1)
+    fig.update_xaxes(showgrid=False,zeroline=False,color='white', row=3, col=1)
+    fig.update_yaxes(showgrid=False,zeroline=False,color='white', row=3, col=1)
+    fig.update_xaxes(showgrid=False,zeroline=False,color='white', row=4, col=1)
+    fig.update_yaxes(showgrid=False,zeroline=False,color='white', row=4, col=1)
+    
+    for l in fig['layout']['annotations']:
+        l['font'] = dict(size=14,color='white')
+    
+    fig.update_layout(height=700,legend=dict(bordercolor="Black",borderwidth=0.5, font=dict(color='white')), 
+                      paper_bgcolor='rgba(0,0,0,0)',
+                      plot_bgcolor='rgba(0,0,0,0)',
+                      hovermode="closest")
+    
+    return fig
+
+
+
+
 def generate_graph(ret):
     
     colors = px.colors.sequential.Rainbow
