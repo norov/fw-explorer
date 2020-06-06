@@ -14,7 +14,9 @@ from abm_logic import *
 
 import pandas as pd
 
-fw_params = pd.read_csv('data.csv')
+import os
+import base64
+import io
 
 app = dash.Dash(
     __name__,
@@ -82,13 +84,62 @@ app.layout = html.Div(
     [
         Input("model",     "value"),
         Input("model-type","value"),
+        Input("intermediate-value","children"),
     ],
 )
-def set_params(model, typ):
-    print(typ, model)
-    vals = fw_params[fw_params['Type']==typ][fw_params['Model'] == model].values
-    print(vals)
-    return list(vals[0,2:])
+def set_params(model, typ, fw_params):
+    fw_params = pd.read_json(fw_params, orient='split')
+    vals = fw_params[fw_params['Type']==typ][fw_params['Model'] == model]
+    if vals.empty:
+        raise dash.exceptions.PreventUpdate()
+
+    return list(vals.values[0,2:])
+
+@app.callback(Output('intermediate-value', 'children'),
+              [Input('upload', 'contents')],
+              )
+def update_output(contents):
+    if contents is None:
+        fw_params = pd.read_csv('data.csv')
+        return fw_params.to_json(date_format='iso', orient='split')
+
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(contents)
+    ret = pd.read_csv(io.StringIO(str(contents)))
+    print(ret)
+
+    return dict(ret)
+
+
+@app.callback(
+    [
+        Output("model",   "options"),
+        Output("model-type",   "options"),
+    ],
+    [
+        Input('intermediate-value', 'children')
+    ],
+)
+def set_options(fw_params):
+    if fw_params == None:
+        raise dash.exceptions.PreventUpdate()
+
+    fw_params = pd.read_json(fw_params, orient='split')
+    print(fw_params)
+    print(type(fw_params))
+
+    type_options = [
+            {'label': typ, 'value': typ}
+            for typ in fw_params['Type'].unique()
+            ]
+
+    model_options = [
+            {'label': typ, 'value': typ}
+            for typ in fw_params['Model'].unique()
+            ]
+
+    return model_options, type_options
 
 
 @app.callback(
@@ -101,7 +152,16 @@ def set_params(model, typ):
         State("slider-ss", "value"),
         State("periods", "value"),
         State("paths", "value"),
-        State("dcc_dd_sim_type", "value"),
+        State("model", "value"),
+        State("Phi",	  "value"),
+        State("Chi",	  "value"),
+        State("Eta",	  "value"),
+        State("alpha_w", "value"),
+        State("alpha_o", "value"),
+        State("alpha_n", "value"),
+        State("alpha_p", "value"),
+        State("sigma_f", "value"),
+        State("sigma_c", "value"),
     ],
 )
 def update_graph(
@@ -110,7 +170,16 @@ def update_graph(
     ss,
     periods,
     paths,
-    sim_type
+    sim_type,
+    Phi",	  "value"),
+    Chi",	  "value"),
+    Eta",	  "value"),
+    alpha_w", "value"),
+    alpha_o", "value"),
+    alpha_n", "value"),
+    alpha_p", "value"),
+    sigma_f", "value"),
+    sigma_c", "value"),
 ):
     t_start = time.time()
 
@@ -142,7 +211,6 @@ def update_graph(
             ],
         ),
     ]
-
 
 # Running the server
 if __name__ == "__main__":

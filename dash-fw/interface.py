@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import utils.dash_reusable_components as drc
 import numpy as np
+import pandas as pd
 
 def run_once(f):
     def wrapper(*args, **kwargs):
@@ -64,6 +65,14 @@ def card1():
     return drc.Card(
         id="first-card",
         children=[
+            dcc.Upload(
+                id='upload',
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select FW file.')
+                    ]),
+                #multiple = False,
+                ),
             drc.NamedRadioItems(
                 name='Model',
                 id='model-type',
@@ -71,13 +80,22 @@ def card1():
                     'margin-right': '7px',
                     'display': 'inline-block'
                     },
-                options=[
-                    {'label': 'DCA', 'value': 'DCA'},
-                    {'label': 'TPA', 'value': 'TPA'},
-                    ],
-                value='TPA',
+                #options=[
+                #    {'label': typ, 'value': typ}
+                #    for typ in fw_params['Type'].unique()
+                #    ],
+                value=None,
                 ),
-            dcc_dd_sim_type(),
+            dcc.Dropdown(
+                id="model",
+                # options=[
+                #     {'label': typ, 'value': typ}
+                #     for typ in fw_params['Model'].unique()
+                #     ],
+                value = None,
+                clearable=False,
+                searchable=False,
+                ),
             div_input_line(
                 ["Phi", "Chi", "Eta"],
                 ["Phi", "Chi", "Eta"],
@@ -141,37 +159,6 @@ def card2():
             ],
         )
 
-@run_once
-def dcc_dd_sim_type():
-    return dcc.Dropdown(
-        id="model",
-        options=[
-            {
-                "label": "Wealth (W)",
-                "value": "W",
-                },
-            {
-                "label": "Wealth and Predisposition (WP)",
-                "value": "WP"
-                },
-            {
-                "label": "Wealth and Misalignment (WM)",
-                "value": "WM",
-                },
-            {
-                "label": "Herd, Predispos and Misalign (HMP)",
-                "value": "HMP",
-                },
-            {
-                "label": "CN",
-                "value": "CN",
-                },
-            ],
-        value="WP",
-        clearable=False,
-        searchable=False,
-        )
-
 
 def card3():
     return drc.Card(
@@ -211,6 +198,8 @@ def div_panel():
                                 card1(),
                                 card2(),
                                 card3(),
+                                html.Div(id='intermediate-value',
+                                    style={'display': 'none'})
                         ],
                     ),
                         dcc_graph(),
