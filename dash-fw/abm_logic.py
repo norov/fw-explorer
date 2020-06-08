@@ -147,7 +147,9 @@ cparams = {
 }
 
 
+import time
 def generate_constraint(given_params, calibrated_params, run_type="WP"):
+    t_start = time.time()
     set_switching(run_type, calibrated_params)
     log_r, Nc = calculate_returns(given_params, calibrated_params)
 
@@ -160,6 +162,6 @@ def generate_constraint(given_params, calibrated_params, run_type="WP"):
               "Nc": Nc,
               
              }
-
+    print(time.time() - t_start)
     return output
 
