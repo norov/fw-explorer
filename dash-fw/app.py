@@ -208,12 +208,6 @@ def update_graph(
             "sigma_f": sigma_f,  ## noise in the fundamental agent demand
             "sigma_c": sigma_c,  ## noise in the chartest agent demand
             }
-
-    for param in cparams:
-        val = cparams[param]
-        if val is None:
-            cparams[param] = 0
-
     ret = generate_constraint(gparams, cparams, run_type=sim_type)
     fig = generate_graph_prod(ret)
 
