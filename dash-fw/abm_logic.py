@@ -4,6 +4,7 @@ import numpy as np
 from plotly.subplots import make_subplots
 import os
 import pickle
+import time
 
 
 def set_switching(runType, calibrated_params):
@@ -91,6 +92,7 @@ def calculate_returns(given_params, calibrated_params):
     # add for loop to create ndarray of many runs of exog signal
     log_r = np.zeros(shape=(1, sim_L, nr))
     Nc = np.zeros([sim_L, nr])  #Number of chartists
+    Nf = np.zeros([sim_L, nr])  ##progostic state
     for r in range(nr):  ##AK: why not start at time t=1
         ## YN: to make all start from a single point?
         for t in range(2, sim_L):  # generation of single signal over time
@@ -109,8 +111,8 @@ def calculate_returns(given_params, calibrated_params):
             )
 
             # type fractions
-            Nf[t] = 1 / (1 + np.exp(-given_params["beta"] * A[t - 1]))
-            Nc[t, r] = 1 - Nf[t]
+            Nf[t, r] = 1 / (1 + np.exp(-given_params["beta"] * A[t - 1]))
+            Nc[t, r] = 1 - Nf[t, r]
 
             # The A[t] dynamic is set up to handle several models
             A[t] = (
@@ -128,26 +130,12 @@ def calculate_returns(given_params, calibrated_params):
             ] * rand[1, r, t]
 
             # pricing
-            P[t + 1] = P[t] + given_params["mu"] * (Nf[t] * Df[t] + Nc[t, r] * Dc[t])
+            P[t + 1] = P[t] + given_params["mu"] * (Nf[t, r] * Df[t] + Nc[t, r] * Dc[t])
         log_r[:, :, r] = (P[1 : sim_L + 1] - P[0:sim_L]).T
     # returns
     return log_r, Nc
 
-gparams = {"mu": 0.01, "beta": 1, "num_runs": 200, "periods": 500}
 
-cparams = {
-    "phi": 1.00,  ##AK: demand senstivity of the fundamental agents to price deviations.
-    "chi": 1.20,  ##AK: demand senstivity of the chartest agents to price deviations.
-    "eta": 0.991,  ##AK: performance memory (backward looking ewma)
-    "alpha_w": 1580,  ## AK: importance of backward looking performance
-    "alpha_O": 0,  ##a basic predisposition toward the fundmental strategy
-    "alpha_p": 0,  ##misalignment; version to a fundamental strategy when price becomes too far from fundamental
-    "sigma_f": 0.681,  ##noise in the fundamental agent demand
-    "sigma_c": 1.724,  ##noise in the chartest agent demand
-}
-
-
-import time
 def generate_constraint(given_params, calibrated_params, run_type="WP"):
     t_start = time.time()
     set_switching(run_type, calibrated_params)
