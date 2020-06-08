@@ -2,6 +2,8 @@ from math import sqrt
 from scipy.stats import norm
 import numpy as np
 from plotly.subplots import make_subplots
+import os
+import pickle
 
 
 def set_switching(runType, calibrated_params):
@@ -23,10 +25,53 @@ def set_switching(runType, calibrated_params):
         calibrated_params["sigma_f"] = mean_sig
         calibrated_params["sigma_c"] = mean_sig
 
+def set_randomness(x, y):
+    randomness = norm.rvs(loc = 0, scale = 1, size=(2, x, y))
+    with open('rnd.pickle', 'wb') as f:
+        pickle.dump(randomness,f)
+
+
+def get_randomness():
+    with open('rnd.pickle', 'rb') as f:
+        randomness = pickle.load(f)
+    return randomness
+
+
+def update_randomness(nr, sim_L):
+    rand = get_randomness()
+    nagents, rand_nr, rand_sim_L = rand.shape
+    if rand_nr < nr:
+        r = norm.rvs(loc = 0, scale = 1, size=(2, nr - rand_nr, rand_sim_L))
+        rand = np.append(rand, r, axis = 1)
+    elif rand_sim_L < sim_L:
+            r = norm.rvs(loc = 0, scale = 1, size=(2, rand_nr, sim_L - rand_sim_L))
+            rand = np.append(rand, r, axis = 2)
+    else:
+        return rand
+
+    with open('rnd.pickle', 'wb') as f:
+        pickle.dump(rand, f)
+
+    return rand
+
 
 def calculate_returns(given_params, calibrated_params):
     nr = given_params["num_runs"]
     sim_L = given_params["periods"]
+
+    if os.path.exists('rnd.pickle') == False :
+        set_randomness(nr, sim_L)
+
+    rand = get_randomness()
+
+    nagents, rand_nr, rand_sim_L = rand.shape
+    if rand_nr < nr:
+        r = norm.rvs(loc = 0, scale = 1, size=(2, nr - rand_nr, rand_sim_L))
+        rand = np.append(rand, r, axis = 1)
+
+    if rand_sim_L < sim_L:
+        r = norm.rvs(loc = 0, scale = 1, size=(2, rand_nr, sim_L - rand_sim_L))
+        rand = np.append(rand, r, axis = 2)
 
     P = np.zeros([sim_L + 1, 1])  ##progostic state
     Nf = np.zeros([sim_L, 1])  ##progostic state
@@ -77,10 +122,10 @@ def calculate_returns(given_params, calibrated_params):
             # demands
             Df[t] = calibrated_params["phi"] * (pstar - P[t]) + calibrated_params[
                 "sigma_f"
-            ] * np.random.randn(1)
+            ] * rand[0, r, t]
             Dc[t] = calibrated_params["chi"] * (P[t] - P[t - 1]) + calibrated_params[
                 "sigma_c"
-            ] * np.random.randn(1)
+            ] * rand[1, r, t]
 
             # pricing
             P[t + 1] = P[t] + given_params["mu"] * (Nf[t] * Df[t] + Nc[t, r] * Dc[t])
@@ -102,8 +147,7 @@ cparams = {
 }
 
 
-def generate_constraint(given_params = gparams, calibrated_params = cparams, run_type="WP"):
-
+def generate_constraint(given_params, calibrated_params, run_type="WP"):
     set_switching(run_type, calibrated_params)
     log_r, Nc = calculate_returns(given_params, calibrated_params)
 
