@@ -114,7 +114,6 @@ def update_output(contents):
 
     decoded = base64.b64decode(contents)
     ret = pd.read_csv(io.StringIO(str(contents)))
-    print(ret)
 
     return dict(ret)
 
@@ -133,8 +132,6 @@ def set_options(fw_params):
         raise dash.exceptions.PreventUpdate()
 
     fw_params = pd.read_json(fw_params, orient='split')
-    print(fw_params)
-    print(type(fw_params))
 
     type_options = [
             {'label': typ, 'value': typ}
@@ -159,7 +156,16 @@ def set_options(fw_params):
         State("slider-ss", "value"),
         State("periods", "value"),
         State("paths", "value"),
-        State("model", "value")
+        State("model", "value"),
+        State("Phi",     "value"),
+        State("Chi",     "value"),
+        State("Eta",     "value"),
+        State("alpha_w", "value"),
+        State("alpha_o", "value"),
+        State("alpha_n", "value"),
+        State("alpha_p", "value"),
+        State("sigma_f", "value"),
+        State("sigma_c", "value"),
     ],
 )
 def update_graph(
@@ -169,39 +175,67 @@ def update_graph(
     periods,
     paths,
     sim_type,
+    Phi,
+    Chi,
+    Eta,
+    alpha_w,
+    alpha_o,
+    alpha_n,
+    alpha_p,
+    sigma_f,
+    sigma_c,
 ):
+    if n_clicks == 0 or n_clicks is None:
+        raise dash.exceptions.PreventUpdate()
+
     t_start = time.time()
 
-    gparams = {"mu": ml, "beta": ss, "num_runs": paths, "periods": periods}
-    
-    ret = generate_constraint(given_params = gparams, run_type="WP")
+    gparams = {
+            "mu": ml,
+            "beta": ss,
+            "num_runs": paths,
+            "periods": periods
+            }
+
+    cparams = {
+            "phi": Phi,  ##AK: demand senstivity of the fundamental agents to price deviations.
+            "chi": Chi,  ##AK: demand senstivity of the chartest agents to price deviations.
+            "eta": Eta,  ##AK: performance memory (backward looking ewma)
+            "alpha_w": alpha_w,  ## AK: importance of backward looking performance
+            "alpha_O": alpha_o,  ## a basic predisposition toward the fundmental strategy
+            "alpha_p": alpha_p,  ## misalignment; version to a fundamental strategy when price
+                                 ## becomes too far from fundamental
+            "sigma_f": sigma_f,  ## noise in the fundamental agent demand
+            "sigma_c": sigma_c,  ## noise in the chartest agent demand
+            }
+    ret = generate_constraint(gparams, cparams, run_type=sim_type)
     fig = generate_graph_prod(ret)
-    
+
     return [
-        html.Div(
-            id="svm-graph-container",
-            children=dcc.Loading(
-                className="graph-wrapper",
-                children=dcc.Graph(id="graph-sklearn-svm", figure=fig),
-                style={"display": "block"},
-            ),
-        ),
-        # html.Div(
-        #     id="graphs-container",
-        #     children=[
-        #         dcc.Loading(
-        #             className="graph-wrapper",
-        #             children=dcc.Graph(id="graph-line-roc-curve", figure=None),
-        #         ),
-        #         dcc.Loading(
-        #             className="graph-wrapper",
-        #             children=dcc.Graph(
-        #                 id="graph-pie-confusion-matrix", figure=None
-        #             ),
-        #         ),
-        #     ],
-        # ),
-    ]
+            html.Div(
+                id="svm-graph-container",
+                children=dcc.Loading(
+                    className="graph-wrapper",
+                    children=dcc.Graph(id="graph-sklearn-svm", figure=fig),
+                    style={"display": "block"},
+                    ),
+                ),
+            # html.Div(
+            #     id="graphs-container",
+            #     children=[
+            #         dcc.Loading(
+            #             className="graph-wrapper",
+            #             children=dcc.Graph(id="graph-line-roc-curve", figure=None),
+            #         ),
+            #         dcc.Loading(
+            #             className="graph-wrapper",
+            #             children=dcc.Graph(
+            #                 id="graph-pie-confusion-matrix", figure=None
+            #             ),
+            #         ),
+            #     ],
+            # ),
+            ]
 
 # Running the server
 if __name__ == "__main__":
