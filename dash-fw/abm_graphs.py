@@ -12,7 +12,7 @@ import plotly.express as px
 def generate_graph_prod(ret):
     
     # Extract dict
-    simple_R = ret["exog_signal"][0, :, :]
+    simple_R = ret["exog_signal"]
     prices = np.cumprod(simple_R +1,0)
     Nc = ret["Nc"][:, :]
     

@@ -57,6 +57,7 @@ def update_randomness(nr, sim_L):
 
 
 def calculate_returns(given_params, calibrated_params):
+    print(given_params)
     nr = given_params["num_runs"]
     sim_L = given_params["periods"]
 
@@ -74,9 +75,7 @@ def calculate_returns(given_params, calibrated_params):
         r = norm.rvs(loc = 0, scale = 1, size=(2, rand_nr, sim_L - rand_sim_L))
         rand = np.append(rand, r, axis = 2)
 
-    P = np.zeros([sim_L + 1, 1])  ##progostic state
     Nf = np.zeros([sim_L, 1])  ##progostic state
-    pstar = 0
     Df = np.zeros([sim_L, 1])  ##diagnostic state
     Dc = np.zeros([sim_L, 1])  ##diagnostic state
     Gf = np.zeros([sim_L, 1])  ##diagnostic state
@@ -90,15 +89,16 @@ def calculate_returns(given_params, calibrated_params):
     ##AK: what else should be i nitialized if we were doing forecasting?
 
     # add for loop to create ndarray of many runs of exog signal
-    log_r = np.zeros(shape=(1, sim_L, nr))
     Nc = np.zeros([sim_L, nr])  #Number of chartists
     Nf = np.zeros([sim_L, nr])  ##progostic state
+    P = np.zeros([sim_L + 1, nr])  ##progostic state
+    pstar = 0
     for r in range(nr):  ##AK: why not start at time t=1
         ## YN: to make all start from a single point?
         for t in range(2, sim_L):  # generation of single signal over time
             # portfolio performance
-            Gf[t] = (np.exp(P[t]) - np.exp(P[t - 1])) * Df[t - 2]
-            Gc[t] = (np.exp(P[t]) - np.exp(P[t - 1])) * Dc[t - 2]
+            Gf[t] = (np.exp(P[t, r]) - np.exp(P[t - 1, r])) * Df[t - 2]
+            Gc[t] = (np.exp(P[t, r]) - np.exp(P[t - 1, r])) * Dc[t - 2]
 
             # summarize performance over time
             Wf[t] = (
@@ -118,21 +118,20 @@ def calculate_returns(given_params, calibrated_params):
             A[t] = (
                 calibrated_params["alpha_w"] * (Wf[t] - Wc[t])
                 + calibrated_params["alpha_O"]
-                + calibrated_params["alpha_p"] * (pstar - P[t]) ** 2
+                + calibrated_params["alpha_p"] * (pstar - P[t, r]) ** 2
             )
 
             # demands
-            Df[t] = calibrated_params["phi"] * (pstar - P[t]) + calibrated_params[
+            Df[t] = calibrated_params["phi"] * (pstar - P[t, r]) + calibrated_params[
                 "sigma_f"
             ] * rand[0, r, t]
-            Dc[t] = calibrated_params["chi"] * (P[t] - P[t - 1]) + calibrated_params[
+            Dc[t] = calibrated_params["chi"] * (P[t, r] - P[t - 1, r]) + calibrated_params[
                 "sigma_c"
             ] * rand[1, r, t]
 
             # pricing
-            P[t + 1] = P[t] + given_params["mu"] * (Nf[t, r] * Df[t] + Nc[t, r] * Dc[t])
-        log_r[:, :, r] = (P[1 : sim_L + 1] - P[0:sim_L]).T
-    # returns
+            P[t + 1, r] = P[t, r] + given_params["mu"] * (Nf[t, r] * Df[t] + Nc[t, r] * Dc[t])
+    log_r = P[1 : sim_L + 1, :] - P[0:sim_L, :]
     return log_r, Nc
 
 
