@@ -56,8 +56,16 @@ def update_randomness(nr, sim_L):
     return rand
 
 
+def mean_price(price, period, path, rvmean):
+    if period >= rvmean:
+        return np.mean(price[period - rvmean : period, path])
+
+    # Assuming starting price is 0
+    return np.mean(price[0 : period, path]) * period / rvmean
+
 def calculate_returns(given_params, calibrated_params):
     print(given_params)
+    rvmean = given_params["rvmean"]
     nr = given_params["num_runs"]
     sim_L = given_params["periods"]
 
@@ -92,7 +100,7 @@ def calculate_returns(given_params, calibrated_params):
     Nc = np.zeros([sim_L, nr])  #Number of chartists
     Nf = np.zeros([sim_L, nr])  ##progostic state
     P = np.zeros([sim_L + 1, nr])  ##progostic state
-    pstar = 0
+    pstar = np.zeros([sim_L, nr])
     for r in range(nr):  ##AK: why not start at time t=1
         ## YN: to make all start from a single point?
         for t in range(2, sim_L):  # generation of single signal over time
@@ -118,11 +126,11 @@ def calculate_returns(given_params, calibrated_params):
             A[t] = (
                 calibrated_params["alpha_w"] * (Wf[t] - Wc[t])
                 + calibrated_params["alpha_O"]
-                + calibrated_params["alpha_p"] * (pstar - P[t, r]) ** 2
+                + calibrated_params["alpha_p"] * (pstar[t-1, r] - P[t, r]) ** 2
             )
 
             # demands
-            Df[t] = calibrated_params["phi"] * (pstar - P[t, r]) + calibrated_params[
+            Df[t] = calibrated_params["phi"] * (pstar[t-1, r] - P[t, r]) + calibrated_params[
                 "sigma_f"
             ] * rand[0, r, t]
             Dc[t] = calibrated_params["chi"] * (P[t, r] - P[t - 1, r]) + calibrated_params[
@@ -131,6 +139,10 @@ def calculate_returns(given_params, calibrated_params):
 
             # pricing
             P[t + 1, r] = P[t, r] + given_params["mu"] * (Nf[t, r] * Df[t] + Nc[t, r] * Dc[t])
+
+            if rvmean is not  None:
+                pstar[t, r] = mean_price(P, t, r, rvmean)
+
     log_r = P[1 : sim_L + 1, :] - P[0:sim_L, :]
     return log_r, Nc
 
