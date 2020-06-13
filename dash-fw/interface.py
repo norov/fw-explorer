@@ -72,6 +72,8 @@ def card1():
                     'Drag and Drop or ',
                     html.A('Select FW file.')
                     ]),
+                disabled = True,
+                style={'display': 'none'},
                 #multiple = False,
                 ),
             drc.NamedRadioItems(
@@ -144,6 +146,20 @@ def card1():
                 tooltip = {"always_visible": False,
                         "placement": "top"},
                 value=1
+                ),
+            drc.CheckboxSlider("Reverse to mean", 'rvmean_cb', enabled = False,
+                id = 'rvmean',
+                min = 1,
+                max = 365,
+                marks={
+                    i: str(i)
+                    for i in range(0, 365, 90)
+                    },
+                tooltip = {
+                    "always_visible": False,
+                    "placement": "top"
+                    },
+                value = 180,
                 ),
             ]
         )

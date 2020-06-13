@@ -102,6 +102,12 @@ def set_params(model, typ, fw_params):
 
     return list(vals.values[0,2:])
 
+@app.callback(Output('rvmean', 'disabled'),
+              [Input('rvmean_cb', 'value')],
+              )
+def enable_revmean(cb):
+    return not cb
+
 @app.callback(Output('intermediate-value', 'children'),
               [Input('upload', 'contents')],
               )
@@ -166,6 +172,8 @@ def set_options(fw_params):
         State("alpha_p", "value"),
         State("sigma_f", "value"),
         State("sigma_c", "value"),
+        State("rvmean", "value"),
+        State("rvmean", "disabled"),
     ],
 )
 def update_graph(
@@ -184,6 +192,8 @@ def update_graph(
     alpha_p,
     sigma_f,
     sigma_c,
+    rvmean,
+    rvmean_disabled,
 ):
     if n_clicks == 0 or n_clicks is None:
         raise dash.exceptions.PreventUpdate()
@@ -194,7 +204,8 @@ def update_graph(
             "mu": ml,
             "beta": ss,
             "num_runs": paths,
-            "periods": periods
+            "periods": periods,
+            "rvmean": None if rvmean_disabled else rvmean,
             }
 
     cparams = {
