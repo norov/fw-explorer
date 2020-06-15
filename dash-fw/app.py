@@ -163,6 +163,7 @@ def set_options(fw_params):
         State("periods", "value"),
         State("paths", "value"),
         State("model", "value"),
+        State("model-type", "value"),
         State("Phi",     "value"),
         State("Chi",     "value"),
         State("Eta",     "value"),
@@ -183,6 +184,7 @@ def update_graph(
     periods,
     paths,
     sim_type,
+    prob_type,
     Phi,
     Chi,
     Eta,
@@ -206,6 +208,7 @@ def update_graph(
             "num_runs": paths,
             "periods": periods,
             "rvmean": None if rvmean_disabled else rvmean,
+            "prob_type": prob_type,
             }
 
     cparams = {

@@ -69,6 +69,7 @@ def calculate_returns(given_params, calibrated_params):
     nr = given_params["num_runs"]
     sim_L = given_params["periods"]
     mu = given_params["mu"]
+    typ = given_params["prob_type"]
 
     alpha_w = calibrated_params["alpha_w"]
     alpha_o = calibrated_params["alpha_O"]
@@ -119,13 +120,24 @@ def calculate_returns(given_params, calibrated_params):
         Wf[t] = eta * Wf[t - 1] + (1 - eta) * Gf[t]
         Wc[t] = eta * Wc[t - 1] + (1 - eta) * Gc[t]
 
-        # type fractions
-        Nf[t, :] = 1 / (1 + np.exp(-beta * A[t - 1, :]))
-        Nc[t, :] = 1 - Nf[t, :]
+        if typ ==  'TPA':
+            v = 0.05 # XXX take from interface
+            # Determine transition probabilities
+            Pi_cf = np.minimum(np.ones([1, nr]), v * np.exp( A[t-1, :]));
+            Pi_fc = np.minimum(np.ones([1, nr]), v * np.exp(-A[t-1, :]));
 
-        # The A[t] dynamic is set up to handle several models
-        A[t] = alpha_w * (Wf[t, :] - Wc[t, :])\
-                + alpha_o + alpha_p * (pstar[t-1, :] - P[t, :]) ** 2
+            Nf[t, :] = Nf[t-1, :] + Nc[t-1, :] * Pi_cf - Nf[t-1, :] * Pi_fc
+            Nc[t, :] = 1 - Nf[t, :]
+            A[t, :] = alpha_w * (Wf[t, :] - Wc[t, :])
+        elif typ == 'DCA':
+            Nf[t, :] = 1 / (1 + np.exp(-beta * A[t - 1, :]))
+            Nc[t, :] = 1 - Nf[t, :]
+            # The A[t] dynamic is set up to handle several models
+            A[t, :] = alpha_w * (Wf[t, :] - Wc[t, :])\
+                    + alpha_o + alpha_p * (pstar[t-1, :] - P[t, :]) ** 2
+        else:
+            raise ValueError('Type ont supported. Choose DCA or TPA.')
+
 
         # demands
         Df[t, :] = phi * (pstar[t-1, :] - P[t, :]) + sigma_f * rand[0, : nr, t]
