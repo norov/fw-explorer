@@ -77,7 +77,23 @@ app.layout = html.Div(
 
 
 @app.callback(
+    Output("model-select",     "options"),
     [
+        Input("intermediate-value","children"),
+    ],
+)
+def populate_params(fw_params):
+    fw_params = pd.read_json(fw_params, orient='split')
+    options = [
+            {'label': row['Name'], 'value': index}
+            for index, row in fw_params.iterrows()
+            ]
+
+    return options
+
+@app.callback(
+    [
+        Output("model-type",  "value"),
         Output("Phi",	  "value"),
         Output("Chi",	  "value"),
         Output("Eta",	  "value"),
@@ -89,18 +105,21 @@ app.layout = html.Div(
         Output("sigma_c", "value"),
     ],
     [
-        Input("model",     "value"),
-        Input("model-type","value"),
-        Input("intermediate-value","children"),
+        Input("model-select","value"),
+    ],
+    [
+        State("intermediate-value","children"),
     ],
 )
-def set_params(model, typ, fw_params):
+def set_params(model_num, fw_params):
+    if fw_params is None:
+        raise dash.exceptions.PreventUpdate()
     fw_params = pd.read_json(fw_params, orient='split')
-    vals = fw_params[fw_params['Type']==typ][fw_params['Model'] == model]
+    vals = fw_params.iloc[model_num]
     if vals.empty:
         raise dash.exceptions.PreventUpdate()
 
-    return list(vals.values[0,2:])
+    return list(vals.values[1:])
 
 @app.callback(Output('rvmean', 'disabled'),
               [Input('rvmean_cb', 'value')],
@@ -126,30 +145,50 @@ def update_output(contents):
 
 @app.callback(
     [
-        Output("model",   "options"),
-        Output("model-type",   "options"),
+        Output("btn-edit",   "style"),
+        Output("btn-delete", "style"),
     ],
+    [
+        Input('model-select', 'value')
+    ],
+)
+def set_visible(value):
+    if value is None:
+        disp = 'none'
+    else:
+        disp = 'flex'
+
+    style = {'display': disp, 'width': '95%'}
+    return [style, style]
+
+
+@app.callback(
+    Output("model-type",   "options"),
     [
         Input('intermediate-value', 'children')
     ],
 )
 def set_options(fw_params):
-    if fw_params == None:
+    return [
+            {'label': 'DCA', 'value': 'DCA'},
+            {'label': 'TPA', 'value': 'TPA'}
+           ]
+
+
+@app.callback(
+        Output('card1', 'hidden'),
+        [
+            Input('btn-edit', 'n_clicks'),
+        ],
+        [
+            State('card1', 'hidden'),
+        ]
+    )
+def card1_hide(n_clicks, hidden):
+    if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
-    fw_params = pd.read_json(fw_params, orient='split')
-
-    type_options = [
-            {'label': typ, 'value': typ}
-            for typ in fw_params['Type'].unique()
-            ]
-
-    model_options = [
-            {'label': typ, 'value': typ}
-            for typ in fw_params['Model'].unique()
-            ]
-
-    return model_options, type_options
+    return not hidden
 
 
 @app.callback(
@@ -162,7 +201,6 @@ def set_options(fw_params):
         State("slider-ss", "value"),
         State("periods", "value"),
         State("paths", "value"),
-        State("model", "value"),
         State("model-type", "value"),
         State("Phi",     "value"),
         State("Chi",     "value"),
@@ -183,7 +221,6 @@ def update_graph(
     ss,
     periods,
     paths,
-    sim_type,
     prob_type,
     Phi,
     Chi,
@@ -228,7 +265,7 @@ def update_graph(
         if val is None:
             cparams[param] = 0
 
-    ret = generate_constraint(gparams, cparams, run_type=sim_type)
+    ret = generate_constraint(gparams, cparams)
     fig = generate_graph_prod(ret)
 
     return [

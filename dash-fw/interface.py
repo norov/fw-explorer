@@ -62,20 +62,45 @@ def div_input_line(name, id,  value):
                 },
             )
 
+def card0():
+    return drc.Card(
+        id = 'select_card',
+        children=[
+            dcc.Dropdown(
+                id="model-select",
+                value = None,
+                clearable=False,
+                searchable=False,
+                ),
+            html.Div([
+                html.Button(
+                    "Show / Hide",
+                    id="btn-edit",
+                    style={
+                    "display": "flex",
+                    "width": "95%",
+                    },
+                    ),
+                html.Button(
+                    "Delete",
+                    id="btn-delete",
+                    style={
+                    "display": "flex",
+                    "width": "95%",
+                    },
+                    ), 
+            ], style={
+                "display": "flex",
+                },
+            ),
+            ]
+        )
+
 def card1():
     return drc.Card(
-        id="first-card",
+        id="card1",
+        hidden = True,
         children=[
-            dcc.Upload(
-                id='upload',
-                children=html.Div([
-                    'Drag and Drop or ',
-                    html.A('Select FW file.')
-                    ]),
-                disabled = True,
-                style={'display': 'none'},
-                #multiple = False,
-                ),
             drc.NamedRadioItems(
                 name='Model',
                 id='model-type',
@@ -83,22 +108,8 @@ def card1():
                     'margin-right': '7px',
                     'display': 'inline-block'
                     },
-                #options=[
-                #    {'label': typ, 'value': typ}
-                #    for typ in fw_params['Type'].unique()
-                #    ],
                 value=None,
                 ),
-            dcc.Dropdown(
-                id="model",
-                # options=[
-                #     {'label': typ, 'value': typ}
-                #     for typ in fw_params['Model'].unique()
-                #     ],
-                value = None,
-                clearable=False,
-                searchable=False,
-                ),
             div_input_line(
                 ["Phi", "Chi", "Eta"],
                 ["Phi", "Chi", "Eta"],
@@ -114,6 +125,14 @@ def card1():
                 ["alpha_p", "sigma_f", "sigma_c"],
                 [None, None, None],
                 ),
+            ]
+        )
+
+
+def card2():
+    return drc.Card(
+        id="button-card",
+        children=[
             div_input_line(
                 ["Periods", "Paths"],
                 ["periods", "paths"],
@@ -161,14 +180,6 @@ def card1():
                     },
                 value = 180,
                 ),
-            ]
-        )
-    
-
-def card2():
-    return drc.Card(
-        id="button-card",
-        children=[
             html.Button(
                 "Simulate",
                 id="btn-simulate",
@@ -212,6 +223,17 @@ def div_panel():
                             # className="three columns",
                             id="left-column",
                             children=[
+                                dcc.Upload(
+                                    id='upload',
+                                    children=html.Div([
+                                        'Drag and Drop or ',
+                                        html.A('Select FW file.')
+                                        ]),
+                                    disabled = True,
+                                    style={'display': 'none'},
+                                    #multiple = False,
+                                    ),
+                                card0(),
                                 card1(),
                                 card2(),
                                 card3(),
