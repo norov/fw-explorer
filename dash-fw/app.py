@@ -191,6 +191,40 @@ def card1_hide(n_clicks, hidden):
     return not hidden
 
 
+
+    
+@app.callback(
+    Output("graph-sklearn-svm", "figure"),
+    [
+     Input("graph-sklearn-svm", "clickData")],
+    [State("graph-sklearn-svm","figure")]
+)
+def update_trace(clickData, figure):
+    
+    # No click handler
+    if clickData is None:
+        raise dash.exceptions.PreventUpdate()
+    
+    # Get curve
+    line_n = clickData['points'][0]['curveNumber']
+    
+    # update color
+    # Currently 4 graphs in subplot
+    # Future improvements should allow for more or user based decision
+    if (figure['data'][line_n]['line']['width'] == 0.7):
+        for i in range(4):
+            figure['data'][line_n+i]['line']['width'] = 1.4
+            figure['data'][line_n+i]['line']['color'] = 'orange'
+    else:
+        for i in range(4):
+            figure['data'][line_n+i]['line']['width'] = 0.7
+            figure['data'][line_n+i]['line']['color'] = 'rgba(255,255,255,0.3)'
+    
+    return figure
+
+
+
+
 @app.callback(
     Output("div-graphs", "children"),
     [
