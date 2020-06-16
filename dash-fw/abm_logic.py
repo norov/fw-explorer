@@ -7,25 +7,6 @@ import pickle
 import time
 
 
-def set_switching(runType, calibrated_params):
-    if runType == "W":  # wealth only
-        calibrated_params["alpha_w"] = 1580
-        calibrated_params["alpha_O"] = 0
-        calibrated_params["alpha_p"] = 0
-    elif runType == "WP":  # wealth and predisposition
-        calibrated_params["alpha_w"] = 2668
-        calibrated_params["alpha_O"] = 2.1
-        calibrated_params["alpha_p"] = 0
-    elif runType == "WM":  # wealth misalignment
-        # this case is not in the FW set: just testing the
-        calibrated_params["alpha_w"] = 1580
-        calibrated_params["alpha_O"] = 0
-        calibrated_params["alpha_p"] = 500
-    elif runType == "CN":  # common noise
-        mean_sig = (calibrated_params["sigma_f"] + calibrated_params["sigma_c"]) / 2
-        calibrated_params["sigma_f"] = mean_sig
-        calibrated_params["sigma_c"] = mean_sig
-
 def set_randomness(x, y):
     randomness = norm.rvs(loc = 0, scale = 1, size=(2, x, y))
     with open('rnd.pickle', 'wb') as f:
@@ -154,9 +135,8 @@ def calculate_returns(given_params, calibrated_params):
     return log_r, Nc
 
 
-def generate_constraint(given_params, calibrated_params, run_type="WP"):
+def generate_constraint(given_params, calibrated_params):
     t_start = time.time()
-    set_switching(run_type, calibrated_params)
     log_r, Nc = calculate_returns(given_params, calibrated_params)
 
     # log -> simple returns
