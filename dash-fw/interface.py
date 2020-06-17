@@ -5,6 +5,7 @@ import utils.dash_reusable_components as drc
 import numpy as np
 import pandas as pd
 
+
 def run_once(f):
     def wrapper(*args, **kwargs):
         if not wrapper.has_run:
@@ -196,18 +197,65 @@ def card3():
             ],
         )
 
-def dcc_graph():
-    return html.Div(
-            id="div-graphs",
-            children=dcc.Graph(
-                id="graph-sklearn-svm",
-                figure=dict(
-                    layout=dict(
-                        plot_bgcolor="#282b38", paper_bgcolor="#282b38"
-                        )
-                    ),
-                ),
-            )
+
+def graph_tabs():
+    return html.Div([
+                dcc.Tabs(id="tabs",
+                         vertical=False,
+                         value = 'One',
+                         parent_style={'flex-direction': 'column',
+                                       '-webkit-flex-direction': 'column',
+                                       '-ms-flex-direction': 'column',
+                                       'display': 'flex'},
+                         children=[
+                             dcc.Tab(
+                                 label='Common view',
+                                 value = 'One',
+                                 children = [
+                                     html.Div(
+                                         id="div-graphs",
+                                             children=dcc.Graph(
+                                                 id="graph_all_curves",
+                                                 figure=dict(
+                                                     layout=dict(
+                                                         plot_bgcolor="#282b38",
+                                                         paper_bgcolor="#282b38"
+                                                     )
+                                                 ),
+                                             ),
+                                         )
+                                     ]
+                                ),
+                               dcc.Tab(
+                                   label='Detailed view',
+                                   value = 'Two',
+                                   children = [
+                                       html.Div(
+                                           id="dv",
+                                           children=dcc.Graph(
+                                               id="graph_sel_curves",
+                                               figure=dict(
+                                                   layout=dict(
+                                                       plot_bgcolor="#282b38",
+                                                       paper_bgcolor="#282b38"
+                                                       )
+                                                   ),
+                                               ),
+                                           )
+                                       ]
+                                   ),
+                               ],
+                         ),
+                           html.Div(
+                               id = 'selected_curves',
+                               children = [],
+                               style={'display': 'none'}
+                               ),
+                ],
+                style={'width': '75%',
+                       #'float': 'left'
+                       }
+                )
 
 
 def div_panel():
@@ -237,12 +285,16 @@ def div_panel():
                                 card1(),
                                 card2(),
                                 card3(),
-                                html.Div(id='intermediate-value',
-                                    style={'display': 'none'})
+                                html.Div(id='intermediate-value', style={'display': 'none'}),
+                                dcc.Store(id='simulated_data')
                         ],
+                        #style={'width':'30%'},
                     ),
-                        dcc_graph(),
+                        graph_tabs(),
                     ],
+                    #style={'width':'30%'},
+                    #style={'display': 'flex'},
             )
         ],
+        style={'display': 'flex'},
     ) 

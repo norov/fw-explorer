@@ -198,39 +198,81 @@ def card1_hide(n_clicks, hidden):
 
     
 @app.callback(
-    Output("graph-sklearn-svm", "figure"),
     [
-     Input("graph-sklearn-svm", "clickData")],
-    [State("graph-sklearn-svm","figure")]
+        Output("graph_all_curves", "figure"),
+        Output("selected_curves", "children"),
+    ],
+    [
+     Input("graph_all_curves", "clickData")],
+    [
+        State("graph_all_curves","figure"),
+        State("selected_curves", "children"),
+    ]
 )
-def update_trace(clickData, figure):
-    
+def update_trace(clickData, figure, sel_curves):
     # No click handler
     if clickData is None:
         raise dash.exceptions.PreventUpdate()
-    
+
+    print(clickData)
     # Get curve
     line_n = clickData['points'][0]['curveNumber']
+    print(line_n)
     
     # update color
     # Currently 4 graphs in subplot
+    nplots = 4
     # Future improvements should allow for more or user based decision
     if (figure['data'][line_n]['line']['width'] == 0.7):
-        for i in range(4):
+        for i in range(nplots):
             figure['data'][line_n+i]['line']['width'] = 1.4
             figure['data'][line_n+i]['line']['color'] = 'orange'
+
+        sel_curves.append(line_n // nplots)
     else:
         for i in range(4):
             figure['data'][line_n+i]['line']['width'] = 0.7
             figure['data'][line_n+i]['line']['color'] = 'rgba(255,255,255,0.3)'
-    
-    return figure
+        sel_curves.remove(line_n // nplots)
 
-
+    print(sel_curves)
+    return figure, sel_curves
 
 
 @app.callback(
-    Output("div-graphs", "children"),
+    Output("dv", "children"),
+    [
+        Input('selected_curves', 'children'),
+        Input('simulated_data', 'data'),
+    ]
+)
+def update_sel_curves(sel_curves, ret):
+    print('update_sel_curves')
+    if sel_curves == [] or ret is None:
+        raise dash.exceptions.PreventUpdate()
+
+    print(sel_curves)
+    print(ret.keys())
+    paths = np.array(ret['exog_signal'])
+    nc = np.array(ret['Nc'])
+    scurves = {
+            'exog_signal': paths[:,sel_curves],
+            'Nc': nc[:,sel_curves],
+            }
+    print(paths[:,sel_curves].shape)
+    print(nc[:,sel_curves].shape)
+
+    fig = generate_graph_prod(scurves)
+    return dcc.Graph(
+            id="graph_sel_curves",
+            figure=fig,
+            )
+
+@app.callback(
+    [
+        Output("div-graphs", "children"),
+        Output("simulated_data", "data"),
+    ],
     [
         Input("btn-simulate", "n_clicks")
     ],
@@ -311,26 +353,13 @@ def update_graph(
                 id="svm-graph-container",
                 children=dcc.Loading(
                     className="graph-wrapper",
-                    children=dcc.Graph(id="graph-sklearn-svm", figure=fig),
+                    children=dcc.Graph(id="graph_all_curves", figure=fig),
                     style={"display": "block"},
                     ),
                 ),
-            # html.Div(
-            #     id="graphs-container",
-            #     children=[
-            #         dcc.Loading(
-            #             className="graph-wrapper",
-            #             children=dcc.Graph(id="graph-line-roc-curve", figure=None),
-            #         ),
-            #         dcc.Loading(
-            #             className="graph-wrapper",
-            #             children=dcc.Graph(
-            #                 id="graph-pie-confusion-matrix", figure=None
-            #             ),
-            #         ),
-            #     ],
-            # ),
+            ret,
             ]
+
 
 # Running the server
 if __name__ == "__main__":
