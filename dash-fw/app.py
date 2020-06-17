@@ -119,7 +119,11 @@ def set_params(model_num, fw_params):
     if vals.empty:
         raise dash.exceptions.PreventUpdate()
 
-    return list(vals.values[1:])
+    ret = [vals.values[1]]
+    for v in vals.values[2:]:
+        ret.append(np.float64(v))
+
+    return ret
 
 @app.callback(Output('rvmean', 'disabled'),
               [Input('rvmean_cb', 'value')],

@@ -45,7 +45,6 @@ def mean_price(price, period, rvmean):
     return np.mean(price[0 : period, :]) * period / rvmean
 
 def calculate_returns(given_params, calibrated_params):
-    print(given_params)
     rvmean = given_params["rvmean"]
     nr = given_params["num_runs"]
     sim_L = given_params["periods"]
