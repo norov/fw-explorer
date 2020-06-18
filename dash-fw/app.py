@@ -262,7 +262,9 @@ def update_sel_curves(sel_curves, ret):
     print(paths[:,sel_curves].shape)
     print(nc[:,sel_curves].shape)
 
-    fig = generate_graph_prod(scurves)
+    #fig = generate_graph_prod(scurves)
+    fig = distrib_plots(scurves, sel_curves)
+    
     return dcc.Graph(
             id="graph_sel_curves",
             figure=fig,
