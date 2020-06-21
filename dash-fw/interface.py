@@ -193,7 +193,27 @@ def card3():
     return drc.Card(
         id="last-card",
         children=[
-            html.P(children="Statistics here"),
+            html.Div([
+                html.Button(
+                    "Top 5 volatile",
+                    id="btn-top5vol",
+                    style={
+                    "display": "flex",
+                    "width": "95%",
+                    },
+                    ),
+                html.Button(
+                    "Reserve",
+                    id="btn-reserve",
+                    style={
+                    "display": "flex",
+                    "width": "95%",
+                    },
+                    ),
+            ], style={
+                "display": "flex",
+                },
+            ),
             ],
         )
 
@@ -248,6 +268,11 @@ def graph_tabs():
                          ),
                            html.Div(
                                id = 'selected_curves',
+                               children = [],
+                               style={'display': 'none'}
+                               ),
+                           html.Div(
+                               id = 'old_selected_curves',
                                children = [],
                                style={'display': 'none'}
                                ),

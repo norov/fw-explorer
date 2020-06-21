@@ -194,49 +194,78 @@ def card1_hide(n_clicks, hidden):
 
     return not hidden
 
-
-
     
 @app.callback(
     [
-        Output("graph_all_curves", "figure"),
         Output("selected_curves", "children"),
+        Output("old_selected_curves", "children"),
     ],
     [
-     Input("graph_all_curves", "clickData")],
+        Input("graph_all_curves", "clickData")
+    ],
     [
-        State("graph_all_curves","figure"),
         State("selected_curves", "children"),
     ]
 )
-def update_trace(clickData, figure, sel_curves):
+def select_trace(clickData, sel_curves):
+    nplots = 4
     # No click handler
     if clickData is None:
         raise dash.exceptions.PreventUpdate()
 
-    print(clickData)
     # Get curve
-    line_n = clickData['points'][0]['curveNumber']
-    print(line_n)
+    line_n = clickData['points'][0]['curveNumber'] // nplots
+
+    old_sel_curves = sel_curves[:]
     
     # update color
     # Currently 4 graphs in subplot
-    nplots = 4
     # Future improvements should allow for more or user based decision
-    if (figure['data'][line_n]['line']['width'] == 0.7):
-        for i in range(nplots):
-            figure['data'][line_n+i]['line']['width'] = 1.4
-            figure['data'][line_n+i]['line']['color'] = 'orange'
+    if line_n not in sel_curves:
+        sel_curves.append(line_n)
+    else:
+        sel_curves.remove(line_n)
 
-        sel_curves.append(line_n // nplots)
+    return sel_curves, old_sel_curves
+
+
+def highlight_trace(figure, trace, yes):
+    nplots = 4
+    if yes:
+        for i in range(nplots):
+            figure['data'][trace * nplots + i]['line']['width'] = 1.4
+            figure['data'][trace * nplots + i]['line']['color'] = 'orange'
     else:
         for i in range(4):
-            figure['data'][line_n+i]['line']['width'] = 0.7
-            figure['data'][line_n+i]['line']['color'] = 'rgba(255,255,255,0.3)'
-        sel_curves.remove(line_n // nplots)
+            figure['data'][trace * nplots + i]['line']['width'] = 0.7
+            figure['data'][trace * nplots + i]['line']['color'] = 'rgba(255,255,255,0.3)'
 
-    print(sel_curves)
-    return figure, sel_curves
+
+@app.callback(
+    [
+        Output("graph_all_curves", "figure"),
+    ],
+    [
+        Input("selected_curves", "children"),
+    ],
+    [
+        State("old_selected_curves", "children"),
+        State("graph_all_curves", "figure"),
+    ],
+)
+def update_trace(sel_curves, old_sel_curves, figure):
+    # update color
+    # Currently 4 graphs in subplot
+    # Future improvements should allow for more or user based decision
+    for trace in sel_curves:
+        if trace not in old_sel_curves:
+            highlight_trace(figure, trace, True)
+
+    for trace in old_sel_curves:
+        if trace not in sel_curves:
+            highlight_trace(figure, trace, False)
+
+    return [figure]
 
 
 @app.callback(
@@ -247,20 +276,15 @@ def update_trace(clickData, figure, sel_curves):
     ]
 )
 def update_sel_curves(sel_curves, ret):
-    print('update_sel_curves')
     if sel_curves == [] or ret is None:
         raise dash.exceptions.PreventUpdate()
 
-    print(sel_curves)
-    print(ret.keys())
     paths = np.array(ret['exog_signal'])
     nc = np.array(ret['Nc'])
     scurves = {
             'exog_signal': paths[:,sel_curves],
             'Nc': nc[:,sel_curves],
             }
-    print(paths[:,sel_curves].shape)
-    print(nc[:,sel_curves].shape)
 
     #fig = generate_graph_prod(scurves)
     fig = distrib_plots(scurves, sel_curves)
