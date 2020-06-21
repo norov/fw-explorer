@@ -1,8 +1,8 @@
-# Support Vector Machine (SVM) Explorer [![Mentioned in Awesome Machine Learning](https://awesome.re/mentioned-badge.svg)](https://github.com/josephmisiti/awesome-machine-learning)
+# Franke-Westerhoff ABM Model Explorer
 
 ## Getting Started
 ### Using the demo
-This demo lets you interactive explore Frankie-Westerhoff model for structurized
+This demo lets you interactively explore the Franke-Westerhoff ABM model for strutural
 volatility. 
 
 ### Running the app locally
