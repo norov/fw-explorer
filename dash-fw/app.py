@@ -194,6 +194,15 @@ def card1_hide(n_clicks, hidden):
 
     return not hidden
 
+def top5vol_tracks(data):
+    if data is None:
+        return [], []
+
+    paths = np.array(data['exog_signal'])
+    vol = np.std(paths, axis = 0)
+    top5 = np.argsort(vol)[-5:]
+    return top5
+
     
 @app.callback(
     [
@@ -201,13 +210,20 @@ def card1_hide(n_clicks, hidden):
         Output("old_selected_curves", "children"),
     ],
     [
-        Input("graph_all_curves", "clickData")
+        Input("graph_all_curves", "clickData"),
+        Input("btn-top5vol", "n_clicks")
     ],
     [
         State("selected_curves", "children"),
+        State("simulated_data", "data"),
     ]
 )
-def select_trace(clickData, sel_curves):
+def select_trace(clickData, top5, sel_curves, returns):
+    ctx = dash.callback_context
+    if ctx.triggered and ctx.triggered[0]['prop_id'] == 'btn-top5vol.n_clicks':
+        old = sel_curves[:]
+        return top5vol_tracks(returns), old
+
     nplots = 4
     # No click handler
     if clickData is None:
