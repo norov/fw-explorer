@@ -227,9 +227,15 @@ def graph_tabs():
                                        '-webkit-flex-direction': 'column',
                                        '-ms-flex-direction': 'column',
                                        'display': 'flex'},
+                         colors={"border": "white",
+                                 "primary": "white",
+                                 "background": "grey"
+                                 },
                          children=[
                              dcc.Tab(
-                                 label='Common view',
+                                 label='Main view',
+                                 style={'backgroundColor': "inherit"}, 
+                                 selected_style={'backgroundColor': "inherit",'color':'white'},
                                  value = 'One',
                                  children = [
                                      html.Div(
@@ -249,6 +255,8 @@ def graph_tabs():
                                dcc.Tab(
                                    label='Detailed view',
                                    value = 'Two',
+                                   style={'backgroundColor': "inherit"}, 
+                                   selected_style={'backgroundColor': "inherit",'color':'white'},
                                    children = [
                                        html.Div(
                                            id="dv",
