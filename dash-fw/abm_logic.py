@@ -65,7 +65,8 @@ def calculate_returns(given_params, calibrated_params):
     if os.path.exists('rnd.pickle') == False :
         set_randomness(nr, sim_L)
 
-    rand = get_randomness()
+    rand = update_randomness(nr, sim_L)
+    # rand = get_randomness()
 
     nagents, rand_nr, rand_sim_L = rand.shape
     if rand_nr < nr:
