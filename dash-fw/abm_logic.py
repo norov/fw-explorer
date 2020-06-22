@@ -89,8 +89,8 @@ def calculate_returns(given_params, calibrated_params):
     Nf = np.zeros([sim_L, nr])  ##progostic state
     P = np.zeros([sim_L + 1, nr])  ##progostic state
     pstar = np.zeros([sim_L, nr])
-    # for rrrr in range(nr):  ##AK: why not start at time t=1
-    #     ## YN: to make all start from a single point?
+    model_vol = np.zeros([sim_L, nr])
+
     for t in range(2, sim_L):  # generation of single signal over time
         # portfolio performance
         Gf[t] = (np.exp(P[t, :]) - np.exp(P[t - 1, :])) * Df[t - 2]
@@ -121,7 +121,7 @@ def calculate_returns(given_params, calibrated_params):
 
         # demands
         Df[t, :] = phi * (pstar[t-1, :] - P[t, :]) + sigma_f * rand[0, : nr, t]
-        Dc[t, :] = chi * (P[t, :] - P[t - 1, :]) +   sigma_c * rand[1, : nr, t]
+        Dc[t, :] = chi * (P[t, :] - P[t - 1, :])   + sigma_c * rand[1, : nr, t]
 
         # pricing
         P[t + 1, :] = P[t, :]\
@@ -130,13 +130,15 @@ def calculate_returns(given_params, calibrated_params):
         if rvmean is not  None:
             pstar[t, :] = mean_price(P, t, rvmean)
 
+        model_vol[t, :] = mu * (Nf[t, :] * sigma_f + Nc[t, :] * sigma_c)
+
     log_r = P[1 : sim_L + 1, :] - P[0:sim_L, :]
-    return log_r, Nc
+    return log_r, Nc, model_vol
 
 
 def generate_constraint(given_params, calibrated_params):
     t_start = time.time()
-    log_r, Nc = calculate_returns(given_params, calibrated_params)
+    log_r, Nc, model_vol = calculate_returns(given_params, calibrated_params)
 
     # log -> simple returns
     simple_R = np.exp(log_r) - 1.0
@@ -145,7 +147,7 @@ def generate_constraint(given_params, calibrated_params):
     output = {"H": None,
               "exog_signal": simple_R,
               "Nc": Nc,
-              
+              "model_vol": model_vol,
              }
     print(time.time() - t_start)
     return output
