@@ -233,6 +233,24 @@ def graph_tabs():
                                  },
                          children=[
                              dcc.Tab(
+                                 label='Calibration 1',
+                                 style={'backgroundColor': "inherit"},
+                                 selected_style={'backgroundColor': "inherit",'color':'white'},
+                                 value = 'ABM1',
+                                 children = [
+                                     html.P("ABM1: calibration process here")
+                                     ]
+                                ),
+                             dcc.Tab(
+                                 label='Calibration 2',
+                                 style={'backgroundColor': "inherit"},
+                                 selected_style={'backgroundColor': "inherit",'color':'white'},
+                                 value = 'ABM1',
+                                 children = [
+                                     html.P("ABM2: calibration process here")
+                                     ]
+                                ),
+                             dcc.Tab(
                                  label='Main view',
                                  style={'backgroundColor': "inherit"}, 
                                  selected_style={'backgroundColor': "inherit",'color':'white'},
