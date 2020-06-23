@@ -4,6 +4,8 @@ import dash_html_components as html
 import utils.dash_reusable_components as drc
 import numpy as np
 import pandas as pd
+from datetime import datetime as dt
+from dateutil.relativedelta import relativedelta
 
 
 def run_once(f):
@@ -247,8 +249,35 @@ def graph_tabs():
                                  selected_style={'backgroundColor': "inherit",'color':'white'},
                                  value = 'ABM1',
                                  children = [
-                                     html.P("ABM2: calibration process here")
-                                     ]
+                                     html.Div(
+                                         id = 'abm2_params',
+                                         children = [
+                                         dcc.Dropdown(
+                                            options = [
+                                                    {'label': 'S&p 500', 'value': '^GSPC'},
+                                                    {'label': 'Dow Jones', 'value': '^DJ'},
+                                                    {'label': 'Russian Rubble', 'value': 'USDRUB'},
+                                                    {'label': 'Louis d\'or', 'value': 'USDLDR'},
+                                                    ],
+                                             id="ticker-select",
+                                             value = None,
+                                             clearable=False,
+                                             searchable=False,
+                                             style={
+                                                 'display': 'block',
+                                                 },
+                                             ),
+                                         dcc.DatePickerRange(
+                                             id='my-date-picker-range',
+                                             start_date=dt.today() - relativedelta(years=5),
+                                             end_date=dt.today(),
+                                             ),
+                                         ],
+                                         style={
+                                             'display': 'inline-block',
+                                             },
+                                         )
+                                     ],
                                 ),
                              dcc.Tab(
                                  label='Main view',
