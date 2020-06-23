@@ -25,11 +25,10 @@ def update_randomness(nr, sim_L):
     if rand_nr < nr:
         r = norm.rvs(loc = 0, scale = 1, size=(2, nr - rand_nr, rand_sim_L))
         rand = np.append(rand, r, axis = 1)
-    elif rand_sim_L < sim_L:
-            r = norm.rvs(loc = 0, scale = 1, size=(2, rand_nr, sim_L - rand_sim_L))
-            rand = np.append(rand, r, axis = 2)
-    else:
-        return rand
+
+    if rand_sim_L < sim_L:
+        r = norm.rvs(loc = 0, scale = 1, size=(2, rand_nr, sim_L - rand_sim_L))
+        rand = np.append(rand, r, axis = 2)
 
     with open('rnd.pickle', 'wb') as f:
         pickle.dump(rand, f)
