@@ -196,24 +196,12 @@ def card3():
         id="last-card",
         children=[
             html.Div([
-                html.Button(
-                    "Top 5 volatile",
-                    id="btn-top5vol",
-                    style={
-                    "display": "flex",
-                    "width": "95%",
-                    },
-                    ),
-                html.Button(
-                    "Reserve",
-                    id="btn-reserve",
-                    style={
-                    "display": "flex",
-                    "width": "95%",
-                    },
-                    ),
+                drc.ButtonInput('Random', 'btn_rand',
+                   id =  'rand_val', value = 20),
+                drc.ButtonInput('Most volatile', 'mostvol',
+                   id =  'mostvol_val', value = 10),
             ], style={
-                "display": "flex",
+            #    "display": "flex",
                 },
             ),
             ],
@@ -366,7 +354,10 @@ def div_panel():
                                 card2(),
                                 card3(),
                                 html.Div(id='intermediate-value', style={'display': 'none'}),
-                                dcc.Store(id='simulated_data')
+                                dcc.Store(id='simulated_data'),
+                                dcc.Store(id='visible_topvol', data = None),
+                                dcc.Store(id='visible_lessvol', data = None),
+                                dcc.Store(id='visible_random', data = None),
                         ],
                         #style={'width':'30%'},
                     ),

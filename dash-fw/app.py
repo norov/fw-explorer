@@ -200,7 +200,63 @@ def top5vol_tracks(data):
     top5 = np.argsort(vol)[-5:]
     return top5
 
-    
+
+@app.callback(
+    [
+        Output("visible_topvol", "data"),
+    ],
+    [
+        Input("mostvol", "n_clicks"),
+    ],
+    [
+        State("mostvol_val", "value"),
+        State("simulated_data", "data"),
+    ]
+)
+def set_topvol(n_clicks, npath, data):
+    ctx = dash.callback_context
+    if n_clicks is None\
+            or npath is None\
+            or data is None:
+        raise dash.exceptions.PreventUpdate()
+
+    if n_clicks % 2 == 0:
+        return [None]
+
+    paths = np.array(data['exog_signal'])
+    vol = np.std(paths, axis = 0)
+    top = np.argsort(vol)[-5:]
+
+    return [top]
+
+   
+@app.callback(
+    [
+        Output("visible_random", "data"),
+    ],
+    [
+        Input("btn_rand", "n_clicks"),
+    ],
+    [
+        State("rand_val", "value"),
+        State("simulated_data", "data"),
+    ]
+)
+def set_rand(n_clicks, npath, data):
+    ctx = dash.callback_context
+    if n_clicks is None\
+            or npath is None\
+            or data is None:
+        raise dash.exceptions.PreventUpdate()
+
+    if n_clicks % 2 == 0:
+        return [None]
+
+    paths = np.array(data['exog_signal'])
+    idx = np.random.choice(range(paths.shape[1]), npath, replace=False)
+    return [idx]
+
+   
 @app.callback(
     [
         Output("selected_curves", "children"),
@@ -208,21 +264,16 @@ def top5vol_tracks(data):
     ],
     [
         Input("graph_all_curves", "clickData"),
-        Input("btn-top5vol", "n_clicks")
     ],
     [
         State("selected_curves", "children"),
         State("simulated_data", "data"),
     ]
 )
-def select_trace(clickData, top5, sel_curves, data):
+def select_trace(clickData, sel_curves, data):
     ctx = dash.callback_context
     if data is None:
         raise dash.exceptions.PreventUpdate()
-
-    if ctx.triggered and ctx.triggered[0]['prop_id'] == 'btn-top5vol.n_clicks':
-        old = sel_curves[:]
-        return top5vol_tracks(data), old
 
     nplots = 4
     # No click handler
