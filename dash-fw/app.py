@@ -245,7 +245,7 @@ def set_topvol(n_clicks, npath, data):
     vol = np.std(paths, axis = 0)
     top = np.argsort(vol)[-npath:]
 
-    return [top]
+    return [sorted(top)]
 
 
 @app.callback(
@@ -275,7 +275,7 @@ def set_lessvol(n_clicks, npath, data):
     vol = np.std(paths, axis = 0)
     lv = np.argsort(vol)[0:npath]
 
-    return [lv]
+    return [sorted(lv)]
 
 
 @app.callback(
@@ -301,12 +301,11 @@ def set_maxdd(n_clicks, npath, data):
     if n_clicks % 2 == 0:
         return [None]
 
-    paths = np.array(globdata['exog_signal'])
+    paths = np.array(globdata['prices'])
     mv = np.min(paths, axis = 0)
-    print(mv.shape, paths.shape)
     idx = np.argsort(mv)[0:npath]
 
-    return [idx]
+    return [sorted(idx)]
 
 
 @app.callback(
@@ -334,7 +333,7 @@ def set_rand(n_clicks, npath, data):
 
     paths = np.array(globdata['exog_signal'])
     idx = np.random.choice(range(paths.shape[1]), npath, replace=False)
-    return [idx]
+    return [sorted(idx)]
 
 
 @app.callback(
