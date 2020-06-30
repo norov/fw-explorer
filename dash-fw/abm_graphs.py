@@ -1,3 +1,4 @@
+import time
 import numpy as np
 import plotly
 from plotly.tools import mpl_to_plotly

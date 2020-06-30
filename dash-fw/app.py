@@ -24,6 +24,21 @@ import os
 import base64
 import io
 
+def timeit(method):
+
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+
+        print('%r () %2.2f sec' % \
+              (method.__name__, te-ts))
+        # print('%r (%r, %r) %2.2f sec' % \
+        #       (method.__name__, args, kw, te-ts))
+        return result
+
+    return timed
+
 app = dash.Dash(
     __name__,
     meta_tags=[
@@ -33,6 +48,7 @@ app = dash.Dash(
 server = app.server
 
 
+@timeit
 def generate_data(n_samples, dataset, noise):
     if dataset == "moons":
         return datasets.make_moons(n_samples=n_samples, noise=noise, random_state=0)
@@ -82,6 +98,7 @@ app.layout = html.Div(
         Input("intermediate-value","children"),
     ],
 )
+@timeit
 def populate_params(fw_params):
     fw_params = pd.read_json(fw_params, orient='split')
     options = [
@@ -111,6 +128,7 @@ def populate_params(fw_params):
         State("intermediate-value","children"),
     ],
 )
+@timeit
 def set_params(model_num, fw_params):
     if fw_params is None:
         raise dash.exceptions.PreventUpdate()
@@ -134,6 +152,7 @@ def enable_revmean(cb):
 @app.callback(Output('intermediate-value', 'children'),
               [Input('upload', 'contents')],
               )
+@timeit
 def update_output(contents):
     if contents is None:
         fw_params = pd.read_csv('data.csv')
@@ -156,6 +175,7 @@ def update_output(contents):
         Input('model-select', 'value')
     ],
 )
+@timeit
 def set_visible(value):
     if value is None:
         disp = 'none'
@@ -172,6 +192,7 @@ def set_visible(value):
         Input('intermediate-value', 'children')
     ],
 )
+@timeit
 def set_options(fw_params):
     return [
             {'label': 'DCA', 'value': 'DCA'},
@@ -194,12 +215,6 @@ def card1_hide(n_clicks, hidden):
 
     return not hidden
 
-def top5vol_tracks(data):
-    paths = np.array(data['exog_signal'])
-    vol = np.std(paths, axis = 0)
-    top5 = np.argsort(vol)[-5:]
-    return top5
-
 
 @app.callback(
     [
@@ -213,6 +228,7 @@ def top5vol_tracks(data):
         State("simulated_data", "data"),
     ]
 )
+@timeit
 def set_topvol(n_clicks, npath, data):
     ctx = dash.callback_context
     if n_clicks is None\
@@ -242,6 +258,7 @@ def set_topvol(n_clicks, npath, data):
         State("simulated_data", "data"),
     ]
 )
+@timeit
 def set_rand(n_clicks, npath, data):
     ctx = dash.callback_context
     if n_clicks is None\
@@ -270,6 +287,7 @@ def set_rand(n_clicks, npath, data):
         State("simulated_data", "data"),
     ]
 )
+@timeit
 def select_trace(clickData, sel_curves, data):
     ctx = dash.callback_context
     if data is None:
@@ -320,6 +338,7 @@ def highlight_trace(figure, trace, yes):
         State("graph_all_curves", "figure"),
     ],
 )
+@timeit
 def update_trace(sel_curves, old_sel_curves, figure):
     # update color
     # Currently 4 graphs in subplot
@@ -342,6 +361,7 @@ def update_trace(sel_curves, old_sel_curves, figure):
         Input('simulated_data', 'data'),
     ]
 )
+@timeit
 def update_sel_curves(sel_curves, ret):
     if sel_curves == [] or ret is None:
         raise dash.exceptions.PreventUpdate()
@@ -371,6 +391,7 @@ def update_sel_curves(sel_curves, ret):
         Input("visible_topvol", "data"),
     ]
 )
+@timeit
 def update_graph(data, rnd, topvol):
     if data is None:
         raise dash.exceptions.PreventUpdate()
@@ -414,6 +435,7 @@ def update_graph(data, rnd, topvol):
         State("rvmean", "disabled"),
     ],
 )
+@timeit
 def update_simulated_data(
     n_clicks,
     ml,
