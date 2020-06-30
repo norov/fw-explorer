@@ -200,6 +200,8 @@ def card3():
                    id =  'rand_val', value = 20),
                 drc.ButtonInput('Most volatile', 'mostvol',
                    id =  'mostvol_val', value = 10),
+                drc.ButtonInput('Less volatile', 'lessvol',
+                   id =  'lessvol_val', value = 10),
             ], style={
             #    "display": "flex",
                 },

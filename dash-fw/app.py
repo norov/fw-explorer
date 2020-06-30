@@ -250,6 +250,37 @@ def set_topvol(n_clicks, npath, data):
 
 @app.callback(
     [
+        Output("visible_lessvol", "data"),
+    ],
+    [
+        Input("lessvol", "n_clicks"),
+    ],
+    [
+        State("lessvol_val", "value"),
+        State("simulated_data", "data"),
+    ]
+)
+@timeit
+def set_lessvol(n_clicks, npath, data):
+    ctx = dash.callback_context
+    if n_clicks is None\
+            or npath is None\
+            or data is None:
+        raise dash.exceptions.PreventUpdate()
+
+    if n_clicks % 2 == 0:
+        return [None]
+
+    paths = np.array(globdata['exog_signal'])
+    vol = np.std(paths, axis = 0)
+    lv = np.argsort(vol)[0:npath]
+
+    print(lv)
+    return [lv]
+
+
+@app.callback(
+    [
         Output("visible_random", "data"),
     ],
     [
@@ -391,14 +422,15 @@ def update_sel_curves(sel_curves, ret):
         Input("simulated_data", "data"),
         Input("visible_random", "data"),
         Input("visible_topvol", "data"),
+        Input("visible_lessvol", "data"),
     ]
 )
 @timeit
-def update_graph(data, rnd, topvol):
+def update_graph(data, rnd, topvol, lessvol):
     if data is None:
         raise dash.exceptions.PreventUpdate()
 
-    fig = generate_graph_prod(globdata, rnd, topvol)
+    fig = generate_graph_prod(globdata, rnd, topvol, lessvol)
     return [
             html.Div(
                 id="svm-graph-container",

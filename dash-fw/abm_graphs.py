@@ -12,7 +12,7 @@ import random
 
 # Generate 3 graphs based on dict returned by generate constraints:
 # Prices paths, Returns, Chartists share
-def generate_graph_prod(ret, rnd, tv):
+def generate_graph_prod(ret, rnd, tv, lv):
     
     # Extract dict
     simple_R = np.array(ret["exog_signal"])
@@ -76,6 +76,10 @@ def generate_graph_prod(ret, rnd, tv):
 
     if tv is not None:
         add_traces(fig, tv, 'rgba(255,0,0,0.8)')
+
+    if lv is not None:
+        add_traces(fig, lv, 'rgba(0,255,0,0.8)')
+
 
     # Layout
     r = [1,3,4,5]
