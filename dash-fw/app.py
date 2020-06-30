@@ -24,6 +24,8 @@ import os
 import base64
 import io
 
+globdata = {}
+
 def timeit(method):
 
     def timed(*args, **kw):
@@ -239,7 +241,7 @@ def set_topvol(n_clicks, npath, data):
     if n_clicks % 2 == 0:
         return [None]
 
-    paths = np.array(data['exog_signal'])
+    paths = np.array(globdata['exog_signal'])
     vol = np.std(paths, axis = 0)
     top = np.argsort(vol)[-npath:]
 
@@ -269,7 +271,7 @@ def set_rand(n_clicks, npath, data):
     if n_clicks % 2 == 0:
         return [None]
 
-    paths = np.array(data['exog_signal'])
+    paths = np.array(globdata['exog_signal'])
     idx = np.random.choice(range(paths.shape[1]), npath, replace=False)
     return [idx]
 
@@ -284,7 +286,7 @@ def set_rand(n_clicks, npath, data):
     ],
     [
         State("selected_curves", "children"),
-        State("simulated_data", "data"),
+        State("simulated_data", "data"), # XXX REMOVE?
     ]
 )
 @timeit
@@ -366,8 +368,8 @@ def update_sel_curves(sel_curves, ret):
     if sel_curves == [] or ret is None:
         raise dash.exceptions.PreventUpdate()
 
-    paths = np.array(ret['exog_signal'])
-    nc = np.array(ret['Nc'])
+    paths = np.array(globdata['exog_signal'])
+    nc = np.array(globdata['Nc'])
     scurves = {
             'exog_signal': paths[:,sel_curves],
             'Nc': nc[:,sel_curves],
@@ -396,7 +398,7 @@ def update_graph(data, rnd, topvol):
     if data is None:
         raise dash.exceptions.PreventUpdate()
 
-    fig = generate_graph_prod(data, rnd, topvol)
+    fig = generate_graph_prod(globdata, rnd, topvol)
     return [
             html.Div(
                 id="svm-graph-container",
@@ -455,6 +457,8 @@ def update_simulated_data(
     rvmean,
     rvmean_disabled,
 ):
+    global globdata
+
     if n_clicks == 0 or n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
@@ -487,10 +491,9 @@ def update_simulated_data(
             cparams[param] = 0
 
     ret = generate_constraint(gparams, cparams)
+    globdata = ret.copy()
 
-    return [
-            ret,
-            ]
+    return [ True ]
 
 
 # Running the server
