@@ -372,14 +372,8 @@ def update_sel_curves(sel_curves, ret):
     ]
 )
 def update_graph(data, rnd, topvol):
-    print('update_graph')
-    print(random)
-    print(topvol)
-    print(type(data))
     if data is None:
         raise dash.exceptions.PreventUpdate()
-
-    print(data.keys())
 
     fig = generate_graph_prod(data, rnd, topvol)
     return [

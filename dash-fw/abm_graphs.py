@@ -43,46 +43,49 @@ def generate_graph_prod(ret, rnd, tv):
                       plot_bgcolor='rgba(0,0,0,0)',
                       hovermode="closest")
     
-    if rnd is None:
-        return fig
+    def add_traces(fig, idx, color):
+        # Generate graphs for each simulation
+        for i in idx:
+            # Prices
+            fig.add_trace(go.Scattergl(x=x,y=prices[:,i],mode='lines',
+                                     name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
+                                     marker=dict(color=color),line=dict(width=0.7)),row=1, col=1)
+            # Returns
+            fig.add_trace(go.Scattergl(x = x, y = simple_R[:,i],
+                                       mode = 'lines',
+                                       name = 'Sim_'+ str(i+1),
+                                       legendgroup='Sim'+str(i+1),
+                                       marker = dict(color=color),
+                                       line = dict(width=0.7),
+                                       showlegend=False),
+                           row=3, col=1)
+            # Vol
+            fig.add_trace(go.Scattergl(x=x,y=np.abs(simple_R[:,i]),mode='lines',
+                                     name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
+                                     marker=dict(color=color),line=dict(width=0.7),
+                                     showlegend=False),row=4, col=1)
+            # Chartists      
+            fig.add_trace(go.Scattergl(x=x,y=Nc[:,i],mode='lines',
+                                     name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
+                                     marker=dict(color=color),line=dict(width=0.7),
+                                     showlegend=False),row=5, col=1)
 
+    if rnd is not None:
+        add_traces(fig, rnd, 'rgba(255,255,255,0.3)')
 
-    # Generate graphs for each simulation
-    for i in rnd:
-        
-        # Prices
-        fig.add_trace(go.Scattergl(x=x,y=prices[:,i],mode='lines',
-                                 name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
-                                 marker=dict(color='rgba(255,255,255,0.3)'),line=dict(width=0.7)),row=1, col=1)
-        
-        # Returns
-        fig.add_trace(go.Scattergl(x=x,y=simple_R[:,i],mode='lines',
-                                 name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
-                                 marker=dict(color='rgba(255,255,255,0.3)'),line=dict(width=0.7),
-                                 showlegend=False),row=3, col=1)
-        
-        # Vol
-        fig.add_trace(go.Scattergl(x=x,y=np.abs(simple_R[:,i]),mode='lines',
-                                 name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
-                                 marker=dict(color='rgba(255,255,255,0.3)'),line=dict(width=0.7),
-                                 showlegend=False),row=4, col=1)
-        
-        # Chartists      
-        fig.add_trace(go.Scattergl(x=x,y=Nc[:,i],mode='lines',
-                                 name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
-                                 marker=dict(color='rgba(255,255,255,0.3)'),line=dict(width=0.7),
-                                 showlegend=False),row=5, col=1)
-    
+    if tv is not None:
+        add_traces(fig, tv, 'rgba(255,0,0,0.8)')
+
     # Layout
     r = [1,3,4,5]
     for i in r:
-        
+
         fig.update_xaxes(showgrid=False,zeroline=False,color='white', row=i, col=1)
         fig.update_yaxes(showgrid=False,zeroline=False,color='white', row=i, col=1)
-    
+
     for l in fig['layout']['annotations']:
         l['font'] = dict(size=14,color='white')
-    
+
     return fig
 
 
