@@ -11,12 +11,13 @@ import random
 
 # Generate 3 graphs based on dict returned by generate constraints:
 # Prices paths, Returns, Chartists share
-def generate_graph_prod(ret):
+def generate_graph_prod(ret, rnd, tv):
     
     # Extract dict
-    simple_R = ret["exog_signal"]
-    prices = np.cumprod(simple_R +1,0)
-    Nc = ret["Nc"][:, :]
+    simple_R = np.array(ret["exog_signal"])
+    prices = np.array(ret["prices"])
+
+    Nc = np.array(ret["Nc"])
     
     len_sim = simple_R.shape[0]
     num_sim = simple_R.shape[1]
@@ -37,8 +38,17 @@ def generate_graph_prod(ret):
         shared_xaxes=True,
         subplot_titles=("Simulated Prices","Simulated Returns","Simulated Volatility", "Chartists share"))
 
+    fig.update_layout(height=900,legend=dict(bordercolor="Black",borderwidth=0.5, font=dict(color='white')), 
+                      paper_bgcolor='rgba(0,0,0,0)',
+                      plot_bgcolor='rgba(0,0,0,0)',
+                      hovermode="closest")
+    
+    if rnd is None:
+        return fig
+
+
     # Generate graphs for each simulation
-    for i in range(prices.shape[1]):
+    for i in rnd:
         
         # Prices
         fig.add_trace(go.Scattergl(x=x,y=prices[:,i],mode='lines',
@@ -72,11 +82,6 @@ def generate_graph_prod(ret):
     
     for l in fig['layout']['annotations']:
         l['font'] = dict(size=14,color='white')
-    
-    fig.update_layout(height=900,legend=dict(bordercolor="Black",borderwidth=0.5, font=dict(color='white')), 
-                      paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)',
-                      hovermode="closest")
     
     return fig
 

@@ -225,7 +225,7 @@ def set_topvol(n_clicks, npath, data):
 
     paths = np.array(data['exog_signal'])
     vol = np.std(paths, axis = 0)
-    top = np.argsort(vol)[-5:]
+    top = np.argsort(vol)[-npath:]
 
     return [top]
 
@@ -364,6 +364,38 @@ def update_sel_curves(sel_curves, ret):
 @app.callback(
     [
         Output("div-graphs", "children"),
+    ],
+    [
+        Input("simulated_data", "data"),
+        Input("visible_random", "data"),
+        Input("visible_topvol", "data"),
+    ]
+)
+def update_graph(data, rnd, topvol):
+    print('update_graph')
+    print(random)
+    print(topvol)
+    print(type(data))
+    if data is None:
+        raise dash.exceptions.PreventUpdate()
+
+    print(data.keys())
+
+    fig = generate_graph_prod(data, rnd, topvol)
+    return [
+            html.Div(
+                id="svm-graph-container",
+                children=dcc.Loading(
+                    className="graph-wrapper",
+                    children=dcc.Graph(id="graph_all_curves", figure=fig),
+                    style={"display": "block"},
+                    ),
+                ),
+            ]
+    
+
+@app.callback(
+    [
         Output("simulated_data", "data"),
     ],
     [
@@ -388,7 +420,7 @@ def update_sel_curves(sel_curves, ret):
         State("rvmean", "disabled"),
     ],
 )
-def update_graph(
+def update_simulated_data(
     n_clicks,
     ml,
     ss,
@@ -439,17 +471,8 @@ def update_graph(
             cparams[param] = 0
 
     ret = generate_constraint(gparams, cparams)
-    fig = generate_graph_prod(ret)
 
     return [
-            html.Div(
-                id="svm-graph-container",
-                children=dcc.Loading(
-                    className="graph-wrapper",
-                    children=dcc.Graph(id="graph_all_curves", figure=fig),
-                    style={"display": "block"},
-                    ),
-                ),
             ret,
             ]
 

@@ -146,6 +146,7 @@ def generate_constraint(given_params, calibrated_params):
     # H to be determined
     output = {"H": None,
               "exog_signal": simple_R,
+              "prices": np.array(np.cumprod(simple_R + 1, 0)),
               "Nc": Nc,
               "model_vol": model_vol,
              }
