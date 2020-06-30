@@ -229,7 +229,7 @@ def set_topvol(n_clicks, npath, data):
 
     return [top]
 
-   
+
 @app.callback(
     [
         Output("visible_random", "data"),
@@ -256,7 +256,7 @@ def set_rand(n_clicks, npath, data):
     idx = np.random.choice(range(paths.shape[1]), npath, replace=False)
     return [idx]
 
-   
+
 @app.callback(
     [
         Output("selected_curves", "children"),
@@ -284,7 +284,7 @@ def select_trace(clickData, sel_curves, data):
     line_n = clickData['points'][0]['curveNumber'] // nplots
 
     old_sel_curves = sel_curves[:]
-    
+
     # update color
     # Currently 4 graphs in subplot
     # Future improvements should allow for more or user based decision
@@ -355,7 +355,7 @@ def update_sel_curves(sel_curves, ret):
 
     #fig = generate_graph_prod(scurves)
     fig = distrib_plots(scurves, sel_curves)
-    
+
     return dcc.Graph(
             id="graph_sel_curves",
             figure=fig,
