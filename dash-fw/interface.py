@@ -202,6 +202,8 @@ def card3():
                    id =  'mostvol_val', value = 10),
                 drc.ButtonInput('Less volatile', 'lessvol',
                    id =  'lessvol_val', value = 10),
+                drc.ButtonInput('Max dropdown', 'maxdd',
+                   id =  'maxdd_val', value = 10),
             ], style={
             #    "display": "flex",
                 },
@@ -359,6 +361,7 @@ def div_panel():
                                 dcc.Store(id='simulated_data'),
                                 dcc.Store(id='visible_topvol', data = None),
                                 dcc.Store(id='visible_lessvol', data = None),
+                                dcc.Store(id='visible_maxdd', data = None),
                                 dcc.Store(id='visible_random', data = None),
                         ],
                         #style={'width':'30%'},

@@ -275,8 +275,38 @@ def set_lessvol(n_clicks, npath, data):
     vol = np.std(paths, axis = 0)
     lv = np.argsort(vol)[0:npath]
 
-    print(lv)
     return [lv]
+
+
+@app.callback(
+    [
+        Output("visible_maxdd", "data"),
+    ],
+    [
+        Input("maxdd", "n_clicks"),
+    ],
+    [
+        State("maxdd_val", "value"),
+        State("simulated_data", "data"),
+    ]
+)
+@timeit
+def set_maxdd(n_clicks, npath, data):
+    ctx = dash.callback_context
+    if n_clicks is None\
+            or npath is None\
+            or data is None:
+        raise dash.exceptions.PreventUpdate()
+
+    if n_clicks % 2 == 0:
+        return [None]
+
+    paths = np.array(globdata['exog_signal'])
+    mv = np.min(paths, axis = 0)
+    print(mv.shape, paths.shape)
+    idx = np.argsort(mv)[0:npath]
+
+    return [idx]
 
 
 @app.callback(
@@ -423,14 +453,15 @@ def update_sel_curves(sel_curves, ret):
         Input("visible_random", "data"),
         Input("visible_topvol", "data"),
         Input("visible_lessvol", "data"),
+        Input("visible_maxdd", "data"),
     ]
 )
 @timeit
-def update_graph(data, rnd, topvol, lessvol):
+def update_graph(data, rnd, topvol, lessvol, maxdd):
     if data is None:
         raise dash.exceptions.PreventUpdate()
 
-    fig = generate_graph_prod(globdata, rnd, topvol, lessvol)
+    fig = generate_graph_prod(globdata, rnd, topvol, lessvol, maxdd)
     return [
             html.Div(
                 id="svm-graph-container",
