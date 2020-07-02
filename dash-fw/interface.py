@@ -132,6 +132,17 @@ def card1():
         )
 
 
+def card_swipe():
+    return drc.Card(
+        id="card_swipe",
+        #hidden = True,
+        children=[
+            drc.CheckboxSwipe('Phi', [0, 1, 10]),
+            drc.CheckboxSwipe('Chi', [0, 1, 10]),
+            ]
+        )
+
+
 def card2():
     return drc.Card(
         id="button-card",
@@ -311,6 +322,38 @@ def graph_tabs():
                                            )
                                        ]
                                    ),
+                               dcc.Tab(
+                                   label='Sensitivity',
+                                   value = 'sensitivity',
+                                   style={'backgroundColor': "inherit"}, 
+                                   selected_style={'backgroundColor': "inherit",'color':'white'},
+                                   children = [
+                                       html.Div(
+                                           id="sens",
+                                           style = {'display': 'inline-block'},
+                                           children = [
+                                               dcc.Graph(
+                                                   id="phi_sens",
+                                                   figure=dict(
+                                                       layout=dict(
+                                                           plot_bgcolor="#282b38",
+                                                           paper_bgcolor="#282b38"
+                                                           )
+                                                       ),
+                                                   ),
+                                               dcc.Graph(
+                                                   id="chi_sens",
+                                                   figure=dict(
+                                                       layout=dict(
+                                                           plot_bgcolor="#282b38",
+                                                           paper_bgcolor="#282b38"
+                                                           )
+                                                       ),
+                                                   ),
+                                               ]
+                                           )
+                                       ]
+                                   ),
                                ],
                          ),
                            html.Div(
@@ -355,6 +398,7 @@ def div_panel():
                                     ),
                                 card0(),
                                 card1(),
+                                card_swipe(),
                                 card2(),
                                 card3(),
                                 html.Div(id='intermediate-value', style={'display': 'none'}),

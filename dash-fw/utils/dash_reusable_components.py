@@ -34,6 +34,44 @@ def NamedSlider(name, **kwargs):
     )
 
 
+istyle = {'color': 'inherit',
+          'width': '30%',
+         }
+
+def CheckboxSwipe(cname, swipe, enabled = False,  **kwargs):
+    cid = cname + '_slider'
+    return html.Div(
+        style={"padding": "20px 10px 25px 4px"},
+        children=[
+            dcc.Checklist(
+                id = cid,
+                options = [
+                    {"label": cname, "value": 'rvmean'},
+                ],
+                value = []
+            ),
+            html.Div(style={"margin-left": "6px"},
+                children = [
+                    dcc.Input(id = cname + 'start',
+                        value = swipe[0],
+                        type = 'number',
+                        style = istyle,
+                        ),
+                    dcc.Input(id = cname + 'step',
+                        value = swipe[1],
+                        type = 'number',
+                        style = istyle,
+                        ),
+                    dcc.Input(id = cname + 'stop',
+                        value = swipe[2],
+                        type = 'number',
+                        style = istyle,
+                        ),
+                    ]
+                ),
+            ],
+    )
+
 def CheckboxSlider(cname, cid, enabled = False, **kwargs):
     return html.Div(
         style={"padding": "20px 10px 25px 4px"},
