@@ -334,7 +334,7 @@ def graph_tabs():
                                    children = [
                                        html.Div(
                                            id="sens",
-                                           style = {'display': 'inline-block'},
+                                           #style = {'display': 'inline-block'},
                                            children = [
                                                dcc.Graph(
                                                    id="phi_sens",

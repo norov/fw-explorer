@@ -288,7 +288,7 @@ def do_swipe(n_clicks,
              phi_swipe, phi_start, phi_stop, phi_step):
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
-    print(phi_swipe, phi_start, phi_stop, phi_step)
+
     phi_range = np.arange(phi_start, phi_stop, phi_step)
     gparams, cparams = make_params(ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
@@ -304,21 +304,22 @@ def do_swipe(n_clicks,
         phi_vol.append(v)
 
     
-    print(phi_range)
-    print(phi_mean)
-    print(phi_vol)
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=("Price over Phi","Return Vol over Phi"))
 
-    return [
-            dcc.Graph(
-            id="phi_sens",
-            figure=dict(
-                layout=dict(
-                    plot_bgcolor="#282b38",
-                    paper_bgcolor="#282b38"
-                    )
-                )
-            )
-            ]
+    fig.add_trace(go.Scattergl(x=phi_range, y=phi_mean, mode='lines'),
+                    row=1, col=1)
+
+    fig.add_trace(go.Scattergl(x=phi_range, y=phi_vol, mode='lines'),
+                    row=1, col=2)
+
+    return [ dcc.Graph( id="phi_sens",
+            style={
+                'height': 300
+                },
+            figure = fig)
+           ]
 
 
 @app.callback(

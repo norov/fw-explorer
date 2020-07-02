@@ -104,7 +104,7 @@ def distrib_plots(ret, sel_curves):
         
     # Extract dict
     simple_R = ret["exog_signal"]
-    prices = np.cumprod(simple_R +1,0)
+    prices = ret["prices"]
     Nc = ret["Nc"][:, :]
     
     len_sim = simple_R.shape[0]
