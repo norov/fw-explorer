@@ -134,11 +134,11 @@ def card1():
 
 def card_swipe():
     return drc.Card(
-        id="card_swipe",
-        #hidden = True,
+        id = "card_swipe",
+        hidden = True,
         children=[
-            drc.CheckboxSwipe('Phi', [0, 1, 10]),
-            drc.CheckboxSwipe('Chi', [0, 1, 10]),
+            drc.CheckboxSwipe('Phi', [None, None, None]),
+            drc.CheckboxSwipe('Chi', [None, None, None]),
             ]
         )
 
@@ -324,7 +324,7 @@ def graph_tabs():
                                    ),
                                dcc.Tab(
                                    label='Sensitivity',
-                                   value = 'sensitivity',
+                                   value = 'tab_sensitivity',
                                    style={'backgroundColor': "inherit"}, 
                                    selected_style={'backgroundColor': "inherit",'color':'white'},
                                    children = [

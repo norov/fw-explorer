@@ -34,7 +34,8 @@ def timeit(method):
         te = time.time()
 
         # print('%r () %2.2f sec' % \
-              (method.__name__, te-ts))
+        #      (method.__name__, te-ts))
+
         # print('%r (%r, %r) %2.2f sec' % \
         #       (method.__name__, args, kw, te-ts))
         return result
@@ -109,6 +110,52 @@ def populate_params(fw_params):
             ]
 
     return options
+
+@app.callback(
+    [
+        Output("card_swipe", "hidden"),
+
+        Output("Phi_start",  "value"),
+        Output("Phi_stop",  "value"),
+        Output("Phi_step",  "value"),
+
+        Output("Chi_start",  "value"),
+        Output("Chi_stop",  "value"),
+        Output("Chi_step",  "value"),
+    ],
+    [
+        Input("tabs", "value"),
+    ],
+    [
+        State('Phi', 'value'),
+        State('Chi', 'value')
+    ]
+)
+@timeit
+def show_swipes(tab, phi, chi):
+    if phi is None:
+        phi_start = None
+        phi_stop = None
+        phi_step= None
+    else:
+        phi_start = phi / 2
+        phi_stop = phi * 1.5
+        phi_step = phi / 10
+
+    if chi is None:
+        chi_start = None
+        chi_stop = None
+        chi_step= None
+    else:
+        chi_start = chi / 2
+        chi_stop = chi * 1.5
+        chi_step = chi / 10
+    return [
+            tab != 'tab_sensitivity',
+            phi_start, phi_stop, phi_step,
+            chi_start, chi_stop, chi_step,
+            ]
+
 
 @app.callback(
     [

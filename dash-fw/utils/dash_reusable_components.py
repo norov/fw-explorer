@@ -39,30 +39,30 @@ istyle = {'color': 'inherit',
          }
 
 def CheckboxSwipe(cname, swipe, enabled = False,  **kwargs):
-    cid = cname + '_slider'
+    cid = cname + '_swipe'
     return html.Div(
         style={"padding": "20px 10px 25px 4px"},
         children=[
             dcc.Checklist(
                 id = cid,
                 options = [
-                    {"label": cname, "value": 'rvmean'},
+                    {"label": cname, "value": cname},
                 ],
                 value = []
             ),
             html.Div(style={"margin-left": "6px"},
                 children = [
-                    dcc.Input(id = cname + 'start',
+                    dcc.Input(id = cname + '_start',
                         value = swipe[0],
                         type = 'number',
                         style = istyle,
                         ),
-                    dcc.Input(id = cname + 'step',
+                    dcc.Input(id = cname + '_step',
                         value = swipe[1],
                         type = 'number',
                         style = istyle,
                         ),
-                    dcc.Input(id = cname + 'stop',
+                    dcc.Input(id = cname + '_stop',
                         value = swipe[2],
                         type = 'number',
                         style = istyle,
