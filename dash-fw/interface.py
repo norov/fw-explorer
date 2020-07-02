@@ -139,6 +139,10 @@ def card_swipe():
         children=[
             drc.CheckboxSwipe('Phi', [None, None, None]),
             drc.CheckboxSwipe('Chi', [None, None, None]),
+            html.Button(
+                "Swipe",
+                id="btn_swipe",
+                ),
             ]
         )
 

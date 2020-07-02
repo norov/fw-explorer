@@ -234,6 +234,92 @@ def set_visible(value):
     style = {'display': disp, 'width': '95%'}
     return [style, style]
 
+@app.callback(
+    [
+        Output("sens",   "children"),
+    ],
+    [
+        Input('btn_swipe', 'n_clicks')
+    ],
+    [
+        # Model parameters
+        State("slider-ml", "value"),
+        State("slider-ss", "value"),
+        State("periods", "value"),
+        State("paths", "value"),
+        State("model-type", "value"),
+        State("Phi",     "value"),
+        State("Chi",     "value"),
+        State("Eta",     "value"),
+        State("alpha_w", "value"),
+        State("alpha_o", "value"),
+        State("alpha_n", "value"),
+        State("alpha_p", "value"),
+        State("sigma_f", "value"),
+        State("sigma_c", "value"),
+        State("rvmean", "value"),
+        State("rvmean", "disabled"),
+
+        # Swipe parameters
+        State("Phi_swipe",  "value"),
+        State("Phi_start",  "value"),
+        State("Phi_stop",  "value"),
+        State("Phi_step",  "value"),
+    ]
+)
+@timeit
+def do_swipe(n_clicks,
+             ml,
+             ss,
+             periods,
+             paths,
+             prob_type,
+             Phi,
+             Chi,
+             Eta,
+             alpha_w,
+             alpha_o,
+             alpha_n,
+             alpha_p,
+             sigma_f,
+             sigma_c,
+             rvmean,
+             rvmean_disabled,
+             phi_swipe, phi_start, phi_stop, phi_step):
+    if n_clicks is None:
+        raise dash.exceptions.PreventUpdate()
+    print(phi_swipe, phi_start, phi_stop, phi_step)
+    phi_range = np.arange(phi_start, phi_stop, phi_step)
+    gparams, cparams = make_params(ml, ss, periods, paths, prob_type,
+                    Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
+                    alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled,)
+
+    phi_mean = []
+    phi_vol = []
+    for phi in phi_range:
+        cparams['phi'] = phi
+        out = generate_constraint(gparams, cparams)
+        p, v = model_stat(out)
+        phi_mean.append(p)
+        phi_vol.append(v)
+
+    
+    print(phi_range)
+    print(phi_mean)
+    print(phi_vol)
+
+    return [
+            dcc.Graph(
+            id="phi_sens",
+            figure=dict(
+                layout=dict(
+                    plot_bgcolor="#282b38",
+                    paper_bgcolor="#282b38"
+                    )
+                )
+            )
+            ]
+
 
 @app.callback(
     Output("model-type",   "options"),
@@ -518,6 +604,39 @@ def update_graph(data, rnd, topvol, lessvol, maxdd):
                     ),
                 ),
             ]
+
+def make_params(ml, ss, periods, paths, prob_type,
+                Phi, Chi, Eta, alpha_w, alpha_o,
+                alpha_n, alpha_p, sigma_f, sigma_c,
+                rvmean, rvmean_disabled,
+                ):
+    gparams = {
+            "mu": ml,
+            "beta": ss,
+            "num_runs": paths,
+            "periods": periods,
+            "rvmean": None if rvmean_disabled else rvmean,
+            "prob_type": prob_type,
+            }
+
+    cparams = {
+            "phi": Phi,  ##AK: demand senstivity of the fundamental agents to price deviations.
+            "chi": Chi,  ##AK: demand senstivity of the chartest agents to price deviations.
+            "eta": Eta,  ##AK: performance memory (backward looking ewma)
+            "alpha_w": alpha_w,  ## AK: importance of backward looking performance
+            "alpha_O": alpha_o,  ## a basic predisposition toward the fundmental strategy
+            "alpha_p": alpha_p,  ## misalignment; version to a fundamental strategy when price
+                                 ## becomes too far from fundamental
+            "sigma_f": sigma_f,  ## noise in the fundamental agent demand
+            "sigma_c": sigma_c,  ## noise in the chartest agent demand
+            }
+
+    for param in cparams:
+        val = cparams[param]
+        if val is None:
+            cparams[param] = 0
+
+    return  gparams, cparams
     
 
 @app.callback(
@@ -571,35 +690,13 @@ def update_simulated_data(
     if n_clicks == 0 or n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
-    t_start = time.time()
+    gparams, cparams = make_params(ml, ss, periods, paths, prob_type,
+                    Phi, Chi, Eta, alpha_w, alpha_o,
+                    alpha_n, alpha_p, sigma_f, sigma_c,
+                    rvmean, rvmean_disabled,
+                    )
 
-    gparams = {
-            "mu": ml,
-            "beta": ss,
-            "num_runs": paths,
-            "periods": periods,
-            "rvmean": None if rvmean_disabled else rvmean,
-            "prob_type": prob_type,
-            }
-
-    cparams = {
-            "phi": Phi,  ##AK: demand senstivity of the fundamental agents to price deviations.
-            "chi": Chi,  ##AK: demand senstivity of the chartest agents to price deviations.
-            "eta": Eta,  ##AK: performance memory (backward looking ewma)
-            "alpha_w": alpha_w,  ## AK: importance of backward looking performance
-            "alpha_O": alpha_o,  ## a basic predisposition toward the fundmental strategy
-            "alpha_p": alpha_p,  ## misalignment; version to a fundamental strategy when price
-                                 ## becomes too far from fundamental
-            "sigma_f": sigma_f,  ## noise in the fundamental agent demand
-            "sigma_c": sigma_c,  ## noise in the chartest agent demand
-            }
-
-    for param in cparams:
-        val = cparams[param]
-        if val is None:
-            cparams[param] = 0
-
-    ret = generate_constraint(gparams, cparams)
+    ret =  generate_constraint(gparams, cparams)
     globdata = ret.copy()
 
     return [ True ]
