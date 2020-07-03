@@ -18,6 +18,7 @@ def get_randomness():
         randomness = pickle.load(f)
     return randomness
 
+rand = get_randomness()
 
 def update_randomness(nr, sim_L):
     rand = get_randomness()
@@ -44,6 +45,7 @@ def mean_price(price, period, rvmean):
     return np.mean(price[0 : period, :]) * period / rvmean
 
 def calculate_returns(given_params, calibrated_params):
+    global rand
     rvmean = given_params["rvmean"]
     nr = given_params["num_runs"]
     sim_L = given_params["periods"]
@@ -64,8 +66,7 @@ def calculate_returns(given_params, calibrated_params):
     if os.path.exists('rnd.pickle') == False :
         set_randomness(nr, sim_L)
 
-    rand = update_randomness(nr, sim_L)
-    # rand = get_randomness()
+    #rand = update_randomness(nr, sim_L)
 
     nagents, rand_nr, rand_sim_L = rand.shape
     if rand_nr < nr:
