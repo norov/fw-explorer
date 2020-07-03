@@ -296,27 +296,27 @@ def do_swipe(n_clicks,
 
     phi_mean = []
     phi_vol = []
+    chartists_mean = []
+    
     for phi in phi_range:
         cparams['phi'] = phi
         out = generate_constraint(gparams, cparams)
-        p, v = model_stat(out)
+        p, v, c = model_stat(out)
         phi_mean.append(p)
         phi_vol.append(v)
+        chartists_mean.append(c)
+        
 
     
-    fig = make_subplots(
-        rows=1, cols=2,
-        subplot_titles=("Price over Phi","Return Vol over Phi"))
-
-    fig.add_trace(go.Scattergl(x=phi_range, y=phi_mean, mode='lines'),
-                    row=1, col=1)
-
-    fig.add_trace(go.Scattergl(x=phi_range, y=phi_vol, mode='lines'),
-                    row=1, col=2)
+    fig = plot_changes_params(param_range=phi_range, 
+                              param_mean=phi_mean, 
+                              param_vol=phi_vol, 
+                              chartists_mean=chartists_mean)
+    
 
     return [ dcc.Graph( id="phi_sens",
             style={
-                'height': 300
+                'height': 400
                 },
             figure = fig)
            ]

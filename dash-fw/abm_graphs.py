@@ -98,6 +98,41 @@ def generate_graph_prod(ret, rnd, tv, lv, maxdd):
     return fig
 
 
+
+def plot_changes_params(param_range, param_mean, param_vol, chartists_mean):
+    
+    fig = make_subplots(
+        rows=1, cols=3,
+        subplot_titles=("Mean Return over param","Return Vol over param", "Mean chartists level"))
+
+    fig.add_trace(go.Scattergl(x=param_range, y=param_mean, mode='lines',showlegend=False),
+                    row=1, col=1)
+
+    fig.add_trace(go.Scattergl(x=param_range, y=param_vol, mode='lines',showlegend=False),
+                    row=1, col=2)
+     
+    fig.add_trace(go.Scattergl(x=param_range, y=chartists_mean, mode='lines',showlegend=False),
+                    row=1, col=3)
+    
+    
+    fig.update_layout(legend=dict(bordercolor="Black",borderwidth=0.5, font=dict(color='white')), 
+                      paper_bgcolor='rgba(0,0,0,0)',
+                      hovermode="closest")
+    
+    for l in fig['layout']['annotations']:
+        l['font'] = dict(size=14,color='white')
+    
+    fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=1, col=1)
+    fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=1, col=1)
+    fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=1, col=2)
+    fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=1, col=2)
+    fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=1, col=3)
+    fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=1, col=3)
+    
+    
+    return fig
+
+
 def distrib_plots(ret, sel_curves):
     
     colors_rand = list(matplotlib.colors.cnames.values())

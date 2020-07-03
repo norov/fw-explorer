@@ -155,8 +155,9 @@ def generate_constraint(given_params, calibrated_params):
     return output
 
 def model_stat(model_out):
-    return np.mean(model_out['prices'][-1, :]),\
-           np.std(model_out['exog_signal'][-1, :]),
+    return np.mean(model_out['exog_signal'][-1, :]),\
+           np.std(model_out['exog_signal'][-1, :]),\
+           np.mean(model_out['Nc'][-1,:])
 
 def swipe_params(given_params, calibrated_params, swipe_params):
     price_mean = {}
