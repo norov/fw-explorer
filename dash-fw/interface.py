@@ -131,14 +131,49 @@ def card1():
             ]
         )
 
-
 def card_swipe():
+    istyle = {'color': 'inherit',
+            'width': '95%',
+             }
     return drc.Card(
         id = "card_swipe",
         hidden = True,
         children=[
-            drc.CheckboxSwipe('Phi', [None, None, None]),
-            drc.CheckboxSwipe('Chi', [None, None, None]),
+             dcc.Dropdown(
+                options = [
+                        {'label': 'Phi',     'value': 'phi'},
+                        {'label': 'Chi',     'value': 'chi'},
+                        {'label': 'Eta',     'value': 'eta'},
+                        {'label': 'alpha_w', 'value': 'alpha_w'},
+                        {'label': 'alpha_o', 'value': 'alpha_O'},
+                        {'label': 'alpha_n', 'value': 'alpha_p'},
+                        {'label': 'sigma_f', 'value': 'sigma_f'},
+                        {'label': 'sigma_c', 'value': 'sigma_c'},
+                        ],
+                 id="swipe-select",
+                 value = None,
+                 clearable=False,
+                 searchable=False,
+                 style={
+                     'display': 'block',
+                     },
+                 ),
+            html.Div(
+                style={
+                    #"margin-left": "6px",
+                     'display': 'flex',
+                    },
+                children = [
+                    drc.NInput('Start', id = 'swipe_start', value = None,
+                        type = 'number', style = istyle,),
+
+                    drc.NInput('Step', id = 'swipe_step', value = None,
+                        type = 'number', style = istyle,),
+
+                    drc.NInput('Stop', id = 'swipe_stop', value = None,
+                        type = 'number', style = istyle,),
+                    ]
+                ),
             html.Button(
                 "Swipe",
                 id="btn_swipe",

@@ -89,9 +89,17 @@ def CheckboxSlider(cname, cid, enabled = False, **kwargs):
     )
 
 
-def NamedInput(name, **kwargs):
+def NInput(name, **kwargs):
     return html.Div(
-        style={"padding": "20px 10px 25px 4px"},
+        children=[
+            html.P(f"{name}:"),
+            dcc.Input(**kwargs),
+            ],
+        )
+
+
+def NamedInput(name, style = {"padding": "20px 10px 25px 4px"}, **kwargs):
+    return html.Div(
         children=[
             html.P(f"{name}:"),
             html.Div(style={"margin-left": "6px"},

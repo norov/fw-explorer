@@ -111,50 +111,94 @@ def populate_params(fw_params):
 
     return options
 
+
+@app.callback(
+    [
+        Output("swipe_start",  "value"),
+        Output("swipe_stop",  "value"),
+        Output("swipe_step",  "value"),
+    ],
+    [
+        Input("swipe-select", "value"),
+    ],
+    [
+        State("slider-ml", "value"),
+        State("slider-ss", "value"),
+        State("periods", "value"),
+        State("paths", "value"),
+        State("model-type", "value"),
+        State("Phi",     "value"),
+        State("Chi",     "value"),
+        State("Eta",     "value"),
+        State("alpha_w", "value"),
+        State("alpha_o", "value"),
+        State("alpha_n", "value"),
+        State("alpha_p", "value"),
+        State("sigma_f", "value"),
+        State("sigma_c", "value"),
+        State("rvmean", "value"),
+        State("rvmean", "disabled"),
+    ]
+)
+@timeit
+def show_swipes(swipe_select,
+    ml,
+    ss,
+    periods,
+    paths,
+    prob_type,
+    Phi,
+    Chi,
+    Eta,
+    alpha_w,
+    alpha_o,
+    alpha_n,
+    alpha_p,
+    sigma_f,
+    sigma_c,
+    rvmean,
+    rvmean_disabled,
+):
+    if swipe_select is None:
+        raise dash.exceptions.PreventUpdate()
+
+    gparams, cparams = make_params(ml, ss, periods, paths, prob_type,
+                    Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
+                    alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled,
+                    fillna = False)
+    print(swipe_select, cparams)
+    param = cparams[swipe_select]
+
+    if param is None:
+        swipe_start = None
+        swipe_stop = None
+        swipe_step= None
+    else:
+       if swipe_select == 'alpha_o':
+           a = np.abs(param)
+           swipe_start = param - a / 2
+           swipe_stop  = param + a * 1.5
+           swipe_step  = (swipe_stop - swipe_start) / 10
+       else:
+           swipe_start = param / 2
+           swipe_stop  = param * 1.5
+           swipe_step  = param / 10
+    return [
+            swipe_start, swipe_stop, swipe_step,
+            ]
+
+
 @app.callback(
     [
         Output("card_swipe", "hidden"),
-
-        Output("Phi_start",  "value"),
-        Output("Phi_stop",  "value"),
-        Output("Phi_step",  "value"),
-
-        Output("Chi_start",  "value"),
-        Output("Chi_stop",  "value"),
-        Output("Chi_step",  "value"),
     ],
     [
         Input("tabs", "value"),
     ],
-    [
-        State('Phi', 'value'),
-        State('Chi', 'value')
-    ]
 )
 @timeit
-def show_swipes(tab, phi, chi):
-    if phi is None:
-        phi_start = None
-        phi_stop = None
-        phi_step= None
-    else:
-        phi_start = phi / 2
-        phi_stop = phi * 1.5
-        phi_step = phi / 10
-
-    if chi is None:
-        chi_start = None
-        chi_stop = None
-        chi_step= None
-    else:
-        chi_start = chi / 2
-        chi_stop = chi * 1.5
-        chi_step = chi / 10
-    return [
-            tab != 'tab_sensitivity',
-            phi_start, phi_stop, phi_step,
-            chi_start, chi_stop, chi_step,
-            ]
+def show_swipes(tab):
+    return [ tab != 'tab_sensitivity', ]
 
 
 @app.callback(
@@ -261,10 +305,10 @@ def set_visible(value):
         State("rvmean", "disabled"),
 
         # Swipe parameters
-        State("Phi_swipe",  "value"),
-        State("Phi_start",  "value"),
-        State("Phi_stop",  "value"),
-        State("Phi_step",  "value"),
+        State("swipe-select",  "value"),
+        State("swipe_start",  "value"),
+        State("swipe_stop",  "value"),
+        State("swipe_step",  "value"),
     ]
 )
 @timeit
@@ -285,36 +329,34 @@ def do_swipe(n_clicks,
              sigma_c,
              rvmean,
              rvmean_disabled,
-             phi_swipe, phi_start, phi_stop, phi_step):
+             swipe_select, swipe_start, swipe_stop, swipe_step):
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
-    phi_range = np.arange(phi_start, phi_stop, phi_step)
+    swipe_range = np.arange(swipe_start, swipe_stop, swipe_step)
     gparams, cparams = make_params(ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
                     alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled,)
 
-    phi_mean = []
-    phi_vol = []
-    chartists_mean = []
+    sw_mean = []
+    sw_vol = []
+    sw_chartists_mean = []
     
-    for phi in phi_range:
-        cparams['phi'] = phi
+    for param in swipe_range:
+        cparams[swipe_select] = param
         out = generate_constraint(gparams, cparams)
         p, v, c = model_stat(out)
-        phi_mean.append(p)
-        phi_vol.append(v)
-        chartists_mean.append(c)
-        
-
+        sw_mean.append(p)
+        sw_vol.append(v)
+        sw_chartists_mean.append(c)
     
-    fig = plot_changes_params(param_range=phi_range, 
-                              param_mean=phi_mean, 
-                              param_vol=phi_vol, 
-                              chartists_mean=chartists_mean)
+    fig = plot_changes_params(param_range=swipe_range, 
+                              param_mean=sw_mean, 
+                              param_vol=sw_vol, 
+                              chartists_mean=sw_chartists_mean)
     
 
-    return [ dcc.Graph( id="phi_sens",
+    return [ dcc.Graph( id="param_sens",
             style={
                 'height': 400
                 },
@@ -609,7 +651,7 @@ def update_graph(data, rnd, topvol, lessvol, maxdd):
 def make_params(ml, ss, periods, paths, prob_type,
                 Phi, Chi, Eta, alpha_w, alpha_o,
                 alpha_n, alpha_p, sigma_f, sigma_c,
-                rvmean, rvmean_disabled,
+                rvmean, rvmean_disabled, fillna = True
                 ):
     gparams = {
             "mu": ml,
@@ -632,10 +674,11 @@ def make_params(ml, ss, periods, paths, prob_type,
             "sigma_c": sigma_c,  ## noise in the chartest agent demand
             }
 
-    for param in cparams:
-        val = cparams[param]
-        if val is None:
-            cparams[param] = 0
+    if fillna:
+        for param in cparams:
+            val = cparams[param]
+            if val is None:
+                cparams[param] = 0
 
     return  gparams, cparams
     
