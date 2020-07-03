@@ -333,7 +333,7 @@ def do_swipe(n_clicks,
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
-    swipe_range = np.arange(swipe_start, swipe_stop, swipe_step)
+    swipe_range = np.append(np.arange(swipe_start, swipe_stop, swipe_step), swipe_stop)
     gparams, cparams = make_params(ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
                     alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled,)
@@ -341,24 +341,37 @@ def do_swipe(n_clicks,
     sw_mean = []
     sw_vol = []
     sw_chartists_mean = []
+    distrib_returns = []
     
-    for param in swipe_range:
+    dist_list = [0, int(len(swipe_range)/2),len(swipe_range)-1]
+    
+    for i, param in enumerate(swipe_range):
         cparams[swipe_select] = param
         out = generate_constraint(gparams, cparams)
         p, v, c = model_stat(out)
         sw_mean.append(p)
         sw_vol.append(v)
         sw_chartists_mean.append(c)
+        
+         #distribution
+        if (i in dist_list):
+            ret = out['exog_signal'].ravel()
+            fig_dist = ff.create_distplot([ret], 
+                              group_labels=['dist_'+str(param)])
+            distrib_returns.append(fig_dist['data'][1])
+        
+        
     
     fig = plot_changes_params(param_range=swipe_range, 
                               param_mean=sw_mean, 
                               param_vol=sw_vol, 
-                              chartists_mean=sw_chartists_mean)
+                              chartists_mean=sw_chartists_mean,
+                              distrib_ret=distrib_returns)
     
 
     return [ dcc.Graph( id="param_sens",
             style={
-                'height': 400
+                'height': 700
                 },
             figure = fig)
            ]

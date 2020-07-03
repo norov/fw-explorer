@@ -99,12 +99,15 @@ def generate_graph_prod(ret, rnd, tv, lv, maxdd):
 
 
 
-def plot_changes_params(param_range, param_mean, param_vol, chartists_mean):
+def plot_changes_params(param_range, param_mean, param_vol, chartists_mean,distrib_ret):
     
     fig = make_subplots(
-        rows=1, cols=3,
-        subplot_titles=("Mean Return over param","Return Vol over param", "Mean chartists level"))
-
+        rows=3, cols=3,
+        specs=[[{"colspan": 1},{"colspan": 1},{"colspan": 1}],
+               [{"colspan": 3, "rowspan":2},None,None],
+               [None,None,None]],
+        subplot_titles=("Mean Return","Return std", "Mean chartists level","Return distribution"))
+    
     fig.add_trace(go.Scattergl(x=param_range, y=param_mean, mode='lines',showlegend=False),
                     row=1, col=1)
 
@@ -113,6 +116,11 @@ def plot_changes_params(param_range, param_mean, param_vol, chartists_mean):
      
     fig.add_trace(go.Scattergl(x=param_range, y=chartists_mean, mode='lines',showlegend=False),
                     row=1, col=3)
+    
+    for i in range(len(distrib_ret)):
+        fig.add_trace(go.Scatter(distrib_ret[i],line=dict(width=2),
+                                 marker=dict(color=plotly.colors.qualitative.Plotly[i+3])), 
+                                 row=2, col=1)
     
     
     fig.update_layout(legend=dict(bordercolor="Black",borderwidth=0.5, font=dict(color='white')), 
@@ -128,6 +136,8 @@ def plot_changes_params(param_range, param_mean, param_vol, chartists_mean):
     fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=1, col=2)
     fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=1, col=3)
     fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=1, col=3)
+    fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=2, col=1)
+    fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=2, col=1)
     
     
     return fig
