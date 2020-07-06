@@ -250,9 +250,9 @@ def card3():
                    id =  'rand_val', value = 20),
                 drc.ButtonInput('Most volatile', 'mostvol',
                    id =  'mostvol_val', value = 10),
-                drc.ButtonInput('Less volatile', 'lessvol',
+                drc.ButtonInput('Least volatile', 'lessvol',
                    id =  'lessvol_val', value = 10),
-                drc.ButtonInput('Max dropdown', 'maxdd',
+                drc.ButtonInput('Max drawdown', 'maxdd',
                    id =  'maxdd_val', value = 10),
             ], style={
             #    "display": "flex",

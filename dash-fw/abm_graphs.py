@@ -99,14 +99,20 @@ def generate_graph_prod(ret, rnd, tv, lv, maxdd):
 
 
 
-def plot_changes_params(param_range, param_mean, param_vol, chartists_mean,distrib_ret):
+def plot_changes_params(param_range, param_mean, param_vol, param_skew, param_kurt, chartists_mean, distrib_ret):
     
     fig = make_subplots(
-        rows=3, cols=3,
+        rows=4, cols=3,
         specs=[[{"colspan": 1},{"colspan": 1},{"colspan": 1}],
+               [{"colspan": 1},{"colspan": 2},None],
                [{"colspan": 3, "rowspan":2},None,None],
                [None,None,None]],
-        subplot_titles=("Mean Return","Return std", "Mean chartists level","Return distribution"))
+        subplot_titles=("Mean Return",
+                        "Return std",
+                        "Return skew",
+                        "Return kurtosis",
+                        "Mean chartists level",
+                        "Return distribution"))
     
     fig.add_trace(go.Scattergl(x=param_range, y=param_mean, mode='lines',showlegend=False),
                     row=1, col=1)
@@ -114,13 +120,20 @@ def plot_changes_params(param_range, param_mean, param_vol, chartists_mean,distr
     fig.add_trace(go.Scattergl(x=param_range, y=param_vol, mode='lines',showlegend=False),
                     row=1, col=2)
      
-    fig.add_trace(go.Scattergl(x=param_range, y=chartists_mean, mode='lines',showlegend=False),
+    fig.add_trace(go.Scattergl(x=param_range, y=param_skew, mode='lines',showlegend=False),
                     row=1, col=3)
+    
+    fig.add_trace(go.Scattergl(x=param_range, y=param_kurt, mode='lines',showlegend=False),
+                    row=2, col=1)
+
+    fig.add_trace(go.Scattergl(x=param_range, y=chartists_mean, mode='lines',showlegend=False),
+                    row=2, col=2)
+    
     
     for i in range(len(distrib_ret)):
         fig.add_trace(go.Scatter(distrib_ret[i],line=dict(width=2),
-                                 marker=dict(color=plotly.colors.qualitative.Plotly[i+3])), 
-                                 row=2, col=1)
+                                 marker=dict(color=plotly.colors.qualitative.Plotly[i+5])), 
+                                 row=3, col=1)
     
     
     fig.update_layout(legend=dict(bordercolor="Black",borderwidth=0.5, font=dict(color='white')), 
@@ -136,8 +149,14 @@ def plot_changes_params(param_range, param_mean, param_vol, chartists_mean,distr
     fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=1, col=2)
     fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=1, col=3)
     fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=1, col=3)
+    
     fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=2, col=1)
     fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=2, col=1)
+    fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=2, col=2)
+    fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=2, col=2)
+    
+    fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=3, col=1)
+    fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=3, col=1)
     
     
     return fig

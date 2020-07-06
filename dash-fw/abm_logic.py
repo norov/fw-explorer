@@ -1,5 +1,5 @@
 from math import sqrt
-from scipy.stats import norm
+from scipy.stats import norm, kurtosis, skew
 import numpy as np
 from plotly.subplots import make_subplots
 import os
@@ -155,9 +155,15 @@ def generate_constraint(given_params, calibrated_params):
     return output
 
 def model_stat(model_out):
-    return np.mean(model_out['exog_signal'][-1, :]),\
-           np.std(model_out['exog_signal'][-1, :]),\
-           np.mean(model_out['Nc'][-1,:])
+    # return np.mean(model_out['exog_signal'][-1, :]),\
+    #        np.std(model_out['exog_signal'][-1, :]),\
+    #        np.mean(model_out['Nc'][-1,:])    
+    data = model_out['exog_signal'][2:,:].ravel()
+    return np.mean(data),\
+           np.std(data),\
+           np.mean(model_out['Nc'].ravel()),\
+           skew(data),\
+           kurtosis(data, fisher=False)
 
 def swipe_params(given_params, calibrated_params, swipe_params):
     price_mean = {}
