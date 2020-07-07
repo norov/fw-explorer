@@ -340,6 +340,8 @@ def do_swipe(n_clicks,
 
     sw_mean = []
     sw_vol = []
+    sw_skew = []
+    sw_kurt = []
     sw_chartists_mean = []
     distrib_returns = []
     
@@ -348,14 +350,16 @@ def do_swipe(n_clicks,
     for i, param in enumerate(swipe_range):
         cparams[swipe_select] = param
         out = generate_constraint(gparams, cparams)
-        p, v, c = model_stat(out)
+        p, v, c, sk, kur = model_stat(out)
         sw_mean.append(p)
         sw_vol.append(v)
+        sw_skew.append(sk)
+        sw_kurt.append(kur)
         sw_chartists_mean.append(c)
         
          #distribution
         if (i in dist_list):
-            ret = out['exog_signal'].ravel()
+            ret = out['exog_signal'][2:,:].ravel()
             fig_dist = ff.create_distplot([ret], 
                               group_labels=['dist_'+str(param)])
             distrib_returns.append(fig_dist['data'][1])
@@ -364,14 +368,16 @@ def do_swipe(n_clicks,
     
     fig = plot_changes_params(param_range=swipe_range, 
                               param_mean=sw_mean, 
-                              param_vol=sw_vol, 
+                              param_vol=sw_vol,
+                              param_skew=sw_skew,
+                              param_kurt=sw_kurt,
                               chartists_mean=sw_chartists_mean,
                               distrib_ret=distrib_returns)
     
 
     return [ dcc.Graph( id="param_sens",
             style={
-                'height': 700
+                'height': 800
                 },
             figure = fig)
            ]
