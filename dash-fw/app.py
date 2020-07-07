@@ -624,9 +624,11 @@ def update_sel_curves(sel_curves, ret):
         raise dash.exceptions.PreventUpdate()
 
     paths = np.array(globdata['exog_signal'])
+    prices = np.array(globdata['prices'])
     nc = np.array(globdata['Nc'])
     scurves = {
             'exog_signal': paths[:,sel_curves],
+            'prices': prices[:,sel_curves],
             'Nc': nc[:,sel_curves],
             }
 
