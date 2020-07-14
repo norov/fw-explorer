@@ -96,6 +96,35 @@ app.layout = html.Div(
 
 
 @app.callback(
+    [
+        Output("start_period", "style"),
+        Output("stop_period", "style"),
+        Output("stop_period", "value"),
+    ],
+    [
+        Input("swipe-type", "value"),
+    ],
+    [
+        State("paths", "value"),
+    ]
+)
+@timeit
+def show_return_params(swipe_type, paths):
+    istyle = {'color': 'inherit',
+            'width': '95%',
+             }
+
+    if swipe_type == 'Return':
+        istyle['display'] = 'flex'
+    else:
+        istyle['display'] = 'none'
+
+    print(swipe_type)
+    print(istyle)
+
+    return [istyle, istyle, paths]
+
+@app.callback(
     Output("model-select",     "options"),
     [
         Input("intermediate-value","children"),

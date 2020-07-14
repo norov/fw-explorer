@@ -187,6 +187,21 @@ def card_swipe():
                      'display': 'block',
                      },
                  ),
+            html.Div(
+                id = 'return_params',
+                style={
+                     'display': 'flex',
+                     #'display': 'none',
+                    },
+                children = [
+                    drc.NInput('Start Period', id = 'start_period', value = 2,
+                        type = 'number', style = istyle,),
+
+                    drc.NInput('Stop Period', id = 'stop_period', value = None,
+                        type = 'number', style = istyle,),
+
+                    ]
+                ),
             html.Button(
                 "Swipe",
                 id="btn_swipe",
