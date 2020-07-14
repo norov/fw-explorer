@@ -99,14 +99,16 @@ def generate_graph_prod(ret, rnd, tv, lv, maxdd):
 
 
 
-def plot_changes_params(param_range, param_mean, param_vol, param_skew, param_kurt, chartists_mean, distrib_ret):
+def plot_changes_params(param_range, param_mean, param_vol, param_skew, param_kurt,
+        chartists_mean, distrib_ret, distrib_chartists):
     
     fig = make_subplots(
         rows=4, cols=3,
         specs=[[{"colspan": 1},{"colspan": 1},{"colspan": 1}],
                [{"colspan": 1},{"colspan": 2},None],
-               [{"colspan": 3, "rowspan":2},None,None],
-               [None,None,None]],
+               [{"colspan": 3, "rowspan":1},None,None],
+               [{"colspan": 3, "rowspan":1},None,None],
+              ],
         subplot_titles=("Mean Return",
                         "Return std",
                         "Return skew",
@@ -134,6 +136,11 @@ def plot_changes_params(param_range, param_mean, param_vol, param_skew, param_ku
         fig.add_trace(go.Scatter(distrib_ret[i],line=dict(width=2),
                                  marker=dict(color=plotly.colors.qualitative.Plotly[i+5])), 
                                  row=3, col=1)
+    
+    for i in range(len(distrib_chartists)):
+        fig.add_trace(go.Scatter(distrib_chartists[i],line=dict(width=2),
+                                 marker=dict(color=plotly.colors.qualitative.Plotly[i+5])), 
+                                 row=4, col=1)
     
     
     fig.update_layout(legend=dict(bordercolor="Black",borderwidth=0.5, font=dict(color='white')), 

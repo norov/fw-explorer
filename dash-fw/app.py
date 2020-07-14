@@ -286,6 +286,8 @@ def set_visible(value):
         Input('btn_swipe', 'n_clicks')
     ],
     [
+        State("swipe-type", "value"),
+
         # Model parameters
         State("slider-ml", "value"),
         State("slider-ss", "value"),
@@ -313,6 +315,7 @@ def set_visible(value):
 )
 @timeit
 def do_swipe(n_clicks,
+             swipe_type,
              ml,
              ss,
              periods,
@@ -344,8 +347,9 @@ def do_swipe(n_clicks,
     sw_kurt = []
     sw_chartists_mean = []
     distrib_returns = []
+    distrib_chartists = []
     
-    dist_list = [0, int(len(swipe_range)/2),len(swipe_range)-1]
+    dist_list = [0, len(swipe_range)//2,len(swipe_range)-1]
     
     for i, param in enumerate(swipe_range):
         cparams[swipe_select] = param
@@ -359,10 +363,18 @@ def do_swipe(n_clicks,
         
          #distribution
         if (i in dist_list):
-            ret = out['exog_signal'][2:,:].ravel()
-            fig_dist = ff.create_distplot([ret], 
-                              group_labels=['dist_'+str(param)])
+            if swipe_type == 'Return':
+                ret = out['exog_signal'][2:,:].ravel()
+            else:
+                ret = out['prices'][-1, :]
+
+            fig_dist = ff.create_distplot([ret],
+                    group_labels=[str(param)])
             distrib_returns.append(fig_dist['data'][1])
+
+            chartists = out['Nc'][-1, :]
+            fig_dist = ff.create_distplot([chartists], group_labels=[str(param)])
+            distrib_chartists.append(fig_dist['data'][1])
         
         
     
@@ -372,7 +384,8 @@ def do_swipe(n_clicks,
                               param_skew=sw_skew,
                               param_kurt=sw_kurt,
                               chartists_mean=sw_chartists_mean,
-                              distrib_ret=distrib_returns)
+                              distrib_ret=distrib_returns,
+                              distrib_chartists = distrib_chartists)
     
 
     return [ dcc.Graph( id="param_sens",

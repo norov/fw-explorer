@@ -174,6 +174,19 @@ def card_swipe():
                         type = 'number', style = istyle,),
                     ]
                 ),
+             dcc.Dropdown(
+                options = [
+                        {'label': 'Price',   'value': 'Price'},
+                        {'label': 'Return',  'value': 'Return'},
+                        ],
+                 id="swipe-type",
+                 value = None,
+                 clearable=False,
+                 searchable=False,
+                 style={
+                     'display': 'block',
+                     },
+                 ),
             html.Button(
                 "Swipe",
                 id="btn_swipe",
