@@ -154,9 +154,9 @@ def generate_constraint(given_params, calibrated_params):
     print(time.time() - t_start)
     return output
 
-def model_stat(swipe_type, model_out):
+def model_stat(swipe_type, model_out, returns_start, returns_stop):
     if swipe_type == 'Return':
-        data = model_out['exog_signal'][2:,:].ravel()
+        data = model_out['exog_signal'][returns_start : returns_stop, :].ravel()
     else:
         data = model_out['prices'][-1,:]
     return np.mean(data),\

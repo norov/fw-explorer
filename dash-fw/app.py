@@ -105,7 +105,7 @@ app.layout = html.Div(
         Input("swipe-type", "value"),
     ],
     [
-        State("paths", "value"),
+        State("periods", "value"),
     ]
 )
 @timeit
@@ -340,6 +340,8 @@ def set_visible(value):
         State("swipe_start",  "value"),
         State("swipe_stop",  "value"),
         State("swipe_step",  "value"),
+        State("start_period",  "value"),
+        State("stop_period",  "value"),
     ]
 )
 @timeit
@@ -361,7 +363,8 @@ def do_swipe(n_clicks,
              sigma_c,
              rvmean,
              rvmean_disabled,
-             swipe_select, swipe_start, swipe_stop, swipe_step):
+             swipe_select, swipe_start, swipe_stop, swipe_step,
+             returns_start, returns_stop):
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
@@ -383,7 +386,7 @@ def do_swipe(n_clicks,
     for i, param in enumerate(swipe_range):
         cparams[swipe_select] = param
         out = generate_constraint(gparams, cparams)
-        p, v, c, sk, kur = model_stat(swipe_type, out)
+        p, v, c, sk, kur = model_stat(swipe_type, out, returns_start, returns_stop)
         sw_mean.append(p)
         sw_vol.append(v)
         sw_skew.append(sk)
@@ -393,7 +396,7 @@ def do_swipe(n_clicks,
          #distribution
         if (i in dist_list):
             if swipe_type == 'Return':
-                ret = out['exog_signal'][2:,:].ravel()
+                ret = out['exog_signal'][returns_start : returns_stop, :].ravel()
             else:
                 ret = out['prices'][-1, :]
 
