@@ -99,7 +99,7 @@ def generate_graph_prod(ret, rnd, tv, lv, maxdd):
 
 
 
-def plot_changes_params(param_range, param_mean, param_vol, param_skew, param_kurt,
+def plot_changes_params(swipe_type, param_range, param_mean, param_vol, param_skew, param_kurt,
         chartists_mean, distrib_ret, distrib_chartists):
     
     fig = make_subplots(
@@ -109,36 +109,48 @@ def plot_changes_params(param_range, param_mean, param_vol, param_skew, param_ku
                [{"colspan": 3, "rowspan":1},None,None],
                [{"colspan": 3, "rowspan":1},None,None],
               ],
-        subplot_titles=("Mean Return",
-                        "Return std",
-                        "Return skew",
-                        "Return kurtosis",
+        subplot_titles=("Mean " + swipe_type,
+                        swipe_type + " std",
+                        swipe_type + " skew",
+                        swipe_type + " kurtosis",
                         "Mean chartists level",
-                        "Return distribution"))
+                        swipe_type + " distribution",
+                        'Chartists distribution'))
     
-    fig.add_trace(go.Scattergl(x=param_range, y=param_mean, mode='lines',showlegend=False),
+    fig.add_trace(go.Scattergl(x=param_range, y=param_mean, mode='lines',
+                        showlegend=False,
+                        line=dict(color='black', width=2)),
                     row=1, col=1)
 
-    fig.add_trace(go.Scattergl(x=param_range, y=param_vol, mode='lines',showlegend=False),
+    fig.add_trace(go.Scattergl(x=param_range, y=param_vol, mode='lines',
+                        showlegend=False,
+                        line=dict(color='black', width=2)),
                     row=1, col=2)
      
-    fig.add_trace(go.Scattergl(x=param_range, y=param_skew, mode='lines',showlegend=False),
+    fig.add_trace(go.Scattergl(x=param_range, y=param_skew, mode='lines',
+                        showlegend=False,
+                        line=dict(color='black', width=2)),
                     row=1, col=3)
     
-    fig.add_trace(go.Scattergl(x=param_range, y=param_kurt, mode='lines',showlegend=False),
+    fig.add_trace(go.Scattergl(x=param_range, y=param_kurt, mode='lines',
+                        showlegend=False,
+                        line=dict(color='black', width=2)),
                     row=2, col=1)
 
-    fig.add_trace(go.Scattergl(x=param_range, y=chartists_mean, mode='lines',showlegend=False),
+    fig.add_trace(go.Scattergl(x=param_range, y=chartists_mean, mode='lines',
+                        showlegend=False,
+                        line=dict(color='black', width=2)),
                     row=2, col=2)
     
     
+    cc = ['red', 'black', 'blue']
     for i in range(len(distrib_ret)):
-        fig.add_trace(go.Scatter(distrib_ret[i],line=dict(width=2),
+        fig.add_trace(go.Scatter(distrib_ret[i],line=dict(color = cc[i], width=2),
                                  marker=dict(color=plotly.colors.qualitative.Plotly[i+5])), 
                                  row=3, col=1)
     
     for i in range(len(distrib_chartists)):
-        fig.add_trace(go.Scatter(distrib_chartists[i],line=dict(width=2),
+        fig.add_trace(go.Scatter(distrib_chartists[i], line = dict(color = cc[i], width=2),
                                  marker=dict(color=plotly.colors.qualitative.Plotly[i+5])), 
                                  row=4, col=1)
     

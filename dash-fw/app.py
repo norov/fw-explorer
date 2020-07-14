@@ -354,7 +354,7 @@ def do_swipe(n_clicks,
     for i, param in enumerate(swipe_range):
         cparams[swipe_select] = param
         out = generate_constraint(gparams, cparams)
-        p, v, c, sk, kur = model_stat(out)
+        p, v, c, sk, kur = model_stat(swipe_type, out)
         sw_mean.append(p)
         sw_vol.append(v)
         sw_skew.append(sk)
@@ -378,7 +378,8 @@ def do_swipe(n_clicks,
         
         
     
-    fig = plot_changes_params(param_range=swipe_range, 
+    fig = plot_changes_params(swipe_type = swipe_type,
+                              param_range=swipe_range,
                               param_mean=sw_mean, 
                               param_vol=sw_vol,
                               param_skew=sw_skew,
