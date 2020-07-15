@@ -129,6 +129,33 @@ def ButtonInput(btn_name, btn_id, **kwargs):
     )
 
 
+def ButtonInputButton(btn_name, btn_name2, btn_id, btn_id2, **kwargs):
+    return html.Div(
+        style={#"padding": "20px 10px 25px 4px",
+                "display": "inline-block",
+                 'width': '100%',
+                },
+        children=[
+            html.Button(btn_name, btn_id,
+                style = {'color': 'inherit',
+                         'width': '40%',
+                         'float': 'left'}
+                ),
+            dcc.Input(**kwargs,
+                type = 'number',
+                style = {'color': 'inherit',
+                         'width': '30%',
+                        # 'float': 'right'
+                         }),
+            html.Button(btn_name2, btn_id2,
+                style = {'color': 'inherit',
+                         'width': '30%',
+                         'float': 'right'}
+                ),
+        ],
+    )
+
+
 def NamedDropdown(name, **kwargs):
     return html.Div(
         style={"margin": "10px 0px"},
