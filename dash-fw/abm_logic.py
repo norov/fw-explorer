@@ -158,7 +158,7 @@ def model_stat(swipe_type, model_out, returns_start, returns_stop):
     if swipe_type == 'Return':
         data = model_out['exog_signal'][returns_start : returns_stop, :].ravel()
     else:
-        data = model_out['prices'][-1,:]
+        data = model_out['prices'][returns_start : returns_stop, :].ravel()
     return np.mean(data),\
            np.std(data),\
            np.mean(model_out['Nc'].ravel()),\

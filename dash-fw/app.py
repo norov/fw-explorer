@@ -18,6 +18,8 @@ from interface import *
 from abm_logic import *
 from abm_graphs import *
 
+from scipy import stats
+
 import pandas as pd
 
 import os
@@ -97,8 +99,6 @@ app.layout = html.Div(
 
 @app.callback(
     [
-        Output("start_period", "style"),
-        Output("stop_period", "style"),
         Output("stop_period", "value"),
     ],
     [
@@ -110,19 +110,7 @@ app.layout = html.Div(
 )
 @timeit
 def show_return_params(swipe_type, paths):
-    istyle = {'color': 'inherit',
-            'width': '95%',
-             }
-
-    if swipe_type == 'Return':
-        istyle['display'] = 'flex'
-    else:
-        istyle['display'] = 'none'
-
-    print(swipe_type)
-    print(istyle)
-
-    return [istyle, istyle, paths]
+    return [paths]
 
 @app.callback(
     Output("model-select",     "options"),
@@ -380,6 +368,7 @@ def do_swipe(n_clicks,
     sw_chartists_mean = []
     distrib_returns = []
     distrib_chartists = []
+    qqplots = []
     
     dist_list = [0, len(swipe_range)//2,len(swipe_range)-1]
     
@@ -397,8 +386,14 @@ def do_swipe(n_clicks,
         if (i in dist_list):
             if swipe_type == 'Return':
                 ret = out['exog_signal'][returns_start : returns_stop, :].ravel()
+                qq = stats.probplot(ret, dist='norm', sparams=(1))
+                qqplots.append(qq)
+                
             else:
-                ret = out['prices'][-1, :]
+                #ret = out['prices'][-1, :]
+                ret = out['prices'][returns_start : returns_stop, :].ravel()
+                qq = stats.probplot(ret, dist='lognorm', sparams=(1))
+                qqplots.append(qq)
 
             fig_dist = ff.create_distplot([ret],
                     group_labels=[str(param)])
@@ -407,6 +402,11 @@ def do_swipe(n_clicks,
             chartists = out['Nc'][-1, :]
             fig_dist = ff.create_distplot([chartists], group_labels=[str(param)])
             distrib_chartists.append(fig_dist['data'][1])
+            
+            
+            
+            #qq = qqplot(ret, line='s').gca().lines
+            #qqplots.append(qq)
         
         
     
@@ -418,7 +418,8 @@ def do_swipe(n_clicks,
                               param_kurt=sw_kurt,
                               chartists_mean=sw_chartists_mean,
                               distrib_ret=distrib_returns,
-                              distrib_chartists = distrib_chartists)
+                              distrib_chartists = distrib_chartists,
+                              qqplots_graph=qqplots)
     
 
     return [ dcc.Graph( id="param_sens",

@@ -100,22 +100,23 @@ def generate_graph_prod(ret, rnd, tv, lv, maxdd):
 
 
 def plot_changes_params(swipe_type, param_range, param_mean, param_vol, param_skew, param_kurt,
-        chartists_mean, distrib_ret, distrib_chartists):
+        chartists_mean, distrib_ret, distrib_chartists, qqplots_graph):
     
     fig = make_subplots(
         rows=4, cols=3,
         specs=[[{"colspan": 1},{"colspan": 1},{"colspan": 1}],
-               [{"colspan": 1},{"colspan": 2},None],
-               [{"colspan": 3, "rowspan":1},None,None],
-               [{"colspan": 3, "rowspan":1},None,None],
+               [{"colspan": 1},{"colspan": 1},{"colspan": 1}],
+               [{"colspan": 2, "rowspan":2},None,{"rowspan":2}],
+               [None,None,None]
               ],
         subplot_titles=("Mean " + swipe_type,
                         swipe_type + " std",
                         swipe_type + " skew",
                         swipe_type + " kurtosis",
                         "Mean chartists level",
+                        'Chartists distribution',
                         swipe_type + " distribution",
-                        'Chartists distribution'))
+                        "QQ-Plot"))
     
     fig.add_trace(go.Scattergl(x=param_range, y=param_mean, mode='lines',
                         showlegend=False,
@@ -152,7 +153,15 @@ def plot_changes_params(swipe_type, param_range, param_mean, param_vol, param_sk
     for i in range(len(distrib_chartists)):
         fig.add_trace(go.Scatter(distrib_chartists[i], line = dict(color = cc[i], width=2),
                                  marker=dict(color=plotly.colors.qualitative.Plotly[i+5])), 
-                                 row=4, col=1)
+                                 row=2, col=3)
+        
+    for i, qq in enumerate(qqplots_graph):
+        x = np.array([qq[0][0][0], qq[0][0][-1]])
+        fig.add_trace(go.Scattergl(x=qq[0][0], y=qq[0][1], mode='markers', 
+                                   marker=dict(color = cc[i])),row=3, col=3)
+        fig.add_trace(go.Scattergl(x=x, y=qq[1][1] + qq[1][0]*x, mode='lines', 
+                                   marker=dict(color = cc[i])), row=3, col=3)
+        fig.layout.update(showlegend=False)
     
     
     fig.update_layout(legend=dict(bordercolor="Black",borderwidth=0.5, font=dict(color='white')), 
@@ -173,9 +182,14 @@ def plot_changes_params(swipe_type, param_range, param_mean, param_vol, param_sk
     fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=2, col=1)
     fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=2, col=2)
     fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=2, col=2)
+    fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=2, col=3)
+    fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=2, col=3)
     
     fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=3, col=1)
     fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=3, col=1)
+    
+    fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=3, col=3)
+    fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=3, col=3)
     
     
     return fig
