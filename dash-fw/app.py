@@ -99,6 +99,44 @@ app.layout = html.Div(
 
 @app.callback(
     [
+        Output("seed_val", "value"),
+    ],
+    [
+        Input("rnd_seed", "n_clicks"),
+    ],
+)
+def random_seed(n_clicks):
+    if n_clicks is None:
+        raise dash.exceptions.PreventUpdate()
+
+    return [ np.random.randint(65536) ]
+
+
+@app.callback(
+    [
+        Output("set_seed", "disabled"),
+    ],
+    [
+        Input("set_seed", "n_clicks"),
+    ],
+    [
+        State("seed_val", "value"),
+    ],
+)
+def set_seed(n_clicks, seed_val):
+    global rand
+    if n_clicks is None:
+        raise dash.exceptions.PreventUpdate()
+
+    np.random.seed(seed = seed_val)
+    x, y, z = rand.shape
+    rand = np.random.rand(x, y, z)
+
+    return [ True ]
+
+
+@app.callback(
+    [
         Output("stop_period", "value"),
     ],
     [
