@@ -7,34 +7,7 @@ import pickle
 import time
 
 
-def set_randomness(x, y):
-    randomness = norm.rvs(loc = 0, scale = 1, size=(2, x, y))
-    with open('rnd.pickle', 'wb') as f:
-        pickle.dump(randomness,f)
-
-
-def get_randomness():
-    with open('rnd.pickle', 'rb') as f:
-        randomness = pickle.load(f)
-    return randomness
-
-rand = get_randomness()
-
-def update_randomness(nr, sim_L):
-    rand = get_randomness()
-    nagents, rand_nr, rand_sim_L = rand.shape
-    if rand_nr < nr:
-        r = norm.rvs(loc = 0, scale = 1, size=(2, nr - rand_nr, rand_sim_L))
-        rand = np.append(rand, r, axis = 1)
-
-    if rand_sim_L < sim_L:
-        r = norm.rvs(loc = 0, scale = 1, size=(2, rand_nr, sim_L - rand_sim_L))
-        rand = np.append(rand, r, axis = 2)
-
-    with open('rnd.pickle', 'wb') as f:
-        pickle.dump(rand, f)
-
-    return rand
+rand = np.random.rand(2, 1, 1)
 
 
 def mean_price(price, period, rvmean):
@@ -63,16 +36,12 @@ def calculate_returns(given_params, calibrated_params):
     sigma_f = calibrated_params["sigma_f"]
     sigma_c = calibrated_params["sigma_c"]
 
-    if os.path.exists('rnd.pickle') == False :
-        set_randomness(nr, sim_L)
-
-    #rand = update_randomness(nr, sim_L)
-
     nagents, rand_nr, rand_sim_L = rand.shape
     if rand_nr < nr:
         r = norm.rvs(loc = 0, scale = 1, size=(2, nr - rand_nr, rand_sim_L))
         rand = np.append(rand, r, axis = 1)
 
+    nagents, rand_nr, rand_sim_L = rand.shape
     if rand_sim_L < sim_L:
         r = norm.rvs(loc = 0, scale = 1, size=(2, rand_nr, sim_L - rand_sim_L))
         rand = np.append(rand, r, axis = 2)
