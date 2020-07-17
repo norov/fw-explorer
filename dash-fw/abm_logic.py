@@ -9,6 +9,14 @@ import time
 
 rand = np.random.rand(2, 1, 1)
 
+def update_seed(seed):
+    global rand
+    print('WTF')
+    print(rand.shape)
+    np.random.seed(seed)
+    rand = np.random.rand(2, 1, 1)
+    print(rand)
+
 
 def mean_price(price, period, rvmean):
     if period >= rvmean:
@@ -19,6 +27,7 @@ def mean_price(price, period, rvmean):
 
 def calculate_returns(given_params, calibrated_params):
     global rand
+    #print(rand.shape)
     rvmean = given_params["rvmean"]
     nr = given_params["num_runs"]
     sim_L = given_params["periods"]
@@ -120,7 +129,7 @@ def generate_constraint(given_params, calibrated_params):
               "Nc": Nc,
               "model_vol": model_vol,
              }
-    print(time.time() - t_start)
+    #print(time.time() - t_start)
     return output
 
 def model_stat(swipe_type, model_out, returns_start, returns_stop):

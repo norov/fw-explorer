@@ -124,15 +124,14 @@ def random_seed(n_clicks):
     ],
 )
 def set_seed(n_clicks, seed_val):
-    global rand
+    print('set_seed', n_clicks)
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
-    np.random.seed(seed = seed_val)
-    x, y, z = rand.shape
-    rand = np.random.rand(x, y, z)
+    print('set_seed', seed_val)
+    update_seed(seed_val)
 
-    return [ True ]
+    return [ False ]
 
 
 @app.callback(
