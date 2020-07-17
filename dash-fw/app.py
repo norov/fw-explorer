@@ -150,7 +150,10 @@ def show_return_params(swipe_type, paths):
     return [paths]
 
 @app.callback(
-    Output("model-select",     "options"),
+    [
+        Output("model-select",     "options"),
+        Output("model-select",     "value"),
+    ],
     [
         Input("intermediate-value","children"),
     ],
@@ -163,7 +166,8 @@ def populate_params(fw_params):
             for index, row in fw_params.iterrows()
             ]
 
-    return options
+    print(options[0])
+    return [ options, options[0]['value'] ]
 
 
 @app.callback(

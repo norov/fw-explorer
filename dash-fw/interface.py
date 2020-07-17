@@ -156,7 +156,7 @@ def card_swipe():
                         {'label': 'sigma_c', 'value': 'sigma_c'},
                         ],
                  id="swipe-select",
-                 value = None,
+                 value = 'phi',
                  clearable=False,
                  searchable=False,
                  style={
@@ -185,7 +185,7 @@ def card_swipe():
                         {'label': 'Return',  'value': 'Return'},
                         ],
                  id="swipe-type",
-                 value = None,
+                 value = 'Return',
                  clearable=False,
                  searchable=False,
                  style={
@@ -337,7 +337,7 @@ def graph_tabs():
                                                     {'label': 'Louis d\'or', 'value': 'USDLDR'},
                                                     ],
                                              id="ticker-select",
-                                             value = None,
+                                             value = '^GSPC',
                                              clearable=False,
                                              searchable=False,
                                              style={
