@@ -83,6 +83,7 @@ def card0():
                     "Show / Hide",
                     id="btn-edit",
                     style={
+                    'color': 'inherit',
                     "display": "flex",
                     "width": "95%",
                     },
@@ -91,6 +92,7 @@ def card0():
                     "Delete",
                     id="btn-delete",
                     style={
+                    'color': 'inherit',
                     "display": "flex",
                     "width": "95%",
                     },
@@ -208,6 +210,7 @@ def card_swipe():
             html.Button(
                 "Swipe",
                 id="btn_swipe",
+                style = {'color': 'inherit'},
                 ),
             ]
         )
@@ -267,6 +270,7 @@ def card2():
             html.Button(
                 "Simulate",
                 id="btn-simulate",
+                style = {'color': 'inherit', },
                 ),
             ],
         )

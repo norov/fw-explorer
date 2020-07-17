@@ -329,7 +329,10 @@ def set_visible(value):
     else:
         disp = 'flex'
 
-    style = {'display': disp, 'width': '95%'}
+    style = {'display': disp,
+             'color': 'inherit',
+             'width': '95%'}
+
     return [style, style]
 
 @app.callback(
