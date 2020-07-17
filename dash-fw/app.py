@@ -220,12 +220,14 @@ def show_swipes(swipe_select,
     if swipe_select is None:
         raise dash.exceptions.PreventUpdate()
 
-    gparams, cparams = make_params(ml, ss, periods, paths, prob_type,
+    params = make_params(ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
                     alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled,
                     fillna = False)
-    print(swipe_select, cparams)
-    param = cparams[swipe_select]
+    print(swipe_select, params)
+    print('sssssss', type(swipe_select))
+    param = params[swipe_select]
+    print('dddd', param)
 
     if param is None:
         swipe_start = None
@@ -401,7 +403,7 @@ def do_swipe(n_clicks,
         raise dash.exceptions.PreventUpdate()
 
     swipe_range = np.append(np.arange(swipe_start, swipe_stop, swipe_step), swipe_stop)
-    gparams, cparams = make_params(ml, ss, periods, paths, prob_type,
+    params = make_params(ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
                     alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled,)
 
@@ -417,8 +419,8 @@ def do_swipe(n_clicks,
     dist_list = [0, len(swipe_range)//2,len(swipe_range)-1]
     
     for i, param in enumerate(swipe_range):
-        cparams[swipe_select] = param
-        out = generate_constraint(gparams, cparams)
+        params[swipe_select] = param
+        out = generate_constraint(params)
         p, v, c, sk, kur = model_stat(swipe_type, out, returns_start, returns_stop)
         sw_mean.append(p)
         sw_vol.append(v)
@@ -765,16 +767,8 @@ def make_params(ml, ss, periods, paths, prob_type,
                 alpha_n, alpha_p, sigma_f, sigma_c,
                 rvmean, rvmean_disabled, fillna = True
                 ):
-    gparams = {
-            "mu": ml,
-            "beta": ss,
-            "num_runs": paths,
-            "periods": periods,
-            "rvmean": None if rvmean_disabled else rvmean,
-            "prob_type": prob_type,
-            }
 
-    cparams = {
+    params = {
             "phi": Phi,  ##AK: demand senstivity of the fundamental agents to price deviations.
             "chi": Chi,  ##AK: demand senstivity of the chartest agents to price deviations.
             "eta": Eta,  ##AK: performance memory (backward looking ewma)
@@ -784,15 +778,24 @@ def make_params(ml, ss, periods, paths, prob_type,
                                  ## becomes too far from fundamental
             "sigma_f": sigma_f,  ## noise in the fundamental agent demand
             "sigma_c": sigma_c,  ## noise in the chartest agent demand
+
+            "mu": ml,
+            "beta": ss,
+            "num_runs": paths,
+            "periods": periods,
+            "prob_type": prob_type,
             }
 
     if fillna:
-        for param in cparams:
-            val = cparams[param]
+        for param in params:
+            val = params[param]
             if val is None:
-                cparams[param] = 0
+                params[param] = 0
 
-    return  gparams, cparams
+    params["rvmean"] = None if rvmean_disabled else rvmean
+    print(type(params))
+
+    return params
     
 
 @app.callback(
@@ -846,13 +849,13 @@ def update_simulated_data(
     if n_clicks == 0 or n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
-    gparams, cparams = make_params(ml, ss, periods, paths, prob_type,
+    params = make_params(ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o,
                     alpha_n, alpha_p, sigma_f, sigma_c,
                     rvmean, rvmean_disabled,
                     )
 
-    ret =  generate_constraint(gparams, cparams)
+    ret =  generate_constraint(params)
     globdata = ret.copy()
 
     return [ True ]

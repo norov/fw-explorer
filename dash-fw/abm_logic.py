@@ -25,25 +25,25 @@ def mean_price(price, period, rvmean):
     # Assuming starting price is 0
     return np.mean(price[0 : period, :]) * period / rvmean
 
-def calculate_returns(given_params, calibrated_params):
+def calculate_returns(params):
     global rand
     #print(rand.shape)
-    rvmean = given_params["rvmean"]
-    nr = given_params["num_runs"]
-    sim_L = given_params["periods"]
-    mu = given_params["mu"]
-    typ = given_params["prob_type"]
+    rvmean = params["rvmean"]
+    nr = params["num_runs"]
+    sim_L = params["periods"]
+    mu = params["mu"]
+    typ = params["prob_type"]
 
-    alpha_w = calibrated_params["alpha_w"]
-    alpha_o = calibrated_params["alpha_O"]
-    alpha_p = calibrated_params["alpha_p"]
-    eta = calibrated_params["eta"]
-    beta = given_params["beta"]
-    phi = calibrated_params["phi"]
-    chi = calibrated_params["chi"]
+    alpha_w = params["alpha_w"]
+    alpha_o = params["alpha_O"]
+    alpha_p = params["alpha_p"]
+    eta = params["eta"]
+    beta = params["beta"]
+    phi = params["phi"]
+    chi = params["chi"]
 
-    sigma_f = calibrated_params["sigma_f"]
-    sigma_c = calibrated_params["sigma_c"]
+    sigma_f = params["sigma_f"]
+    sigma_c = params["sigma_c"]
 
     nagents, rand_nr, rand_sim_L = rand.shape
     if rand_nr < nr:
@@ -115,9 +115,9 @@ def calculate_returns(given_params, calibrated_params):
     return log_r, Nc, model_vol
 
 
-def generate_constraint(given_params, calibrated_params):
+def generate_constraint(params):
     t_start = time.time()
-    log_r, Nc, model_vol = calculate_returns(given_params, calibrated_params)
+    log_r, Nc, model_vol = calculate_returns(params)
 
     # log -> simple returns
     simple_R = np.exp(log_r) - 1.0
@@ -143,15 +143,15 @@ def model_stat(swipe_type, model_out, returns_start, returns_stop):
            skew(data),\
            kurtosis(data, fisher=False)
 
-def swipe_params(given_params, calibrated_params, swipe_params):
+def swipe_params(params, swipe_params):
     price_mean = {}
     return_vol = {}
     for param in swipe_params:
         price_mean[param] = []
         return_vol[param] = []
         for p in swipe_params[param]:
-            calibrated_params[param] = p
-            out = generate_constraint(given_params, calibrated_params)
+            params[param] = p
+            out = generate_constraint(params, params)
             p, v = model_stat(out)
             price_mean[param].append(p)
             return_vol[param].append(v)
