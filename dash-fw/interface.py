@@ -242,7 +242,7 @@ def card2():
             drc.NamedSlider(
                 name="Switching Strength",
                 id="slider-ss",
-                min=0,
+                min=0.1,
                 max=2,
                 marks={
                     i / 10: str(i / 10)
