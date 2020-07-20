@@ -294,7 +294,7 @@ def set_params(model_num, fw_params):
     for v in vals.values[2:]:
         ret.append(np.float64(v))
 
-    return ret
+    return ret[:10]
 
 @app.callback(Output('rvmean', 'disabled'),
               [Input('rvmean_cb', 'value')],
@@ -308,15 +308,8 @@ def enable_revmean(cb):
 @timeit
 def update_output(contents):
     if contents is None:
-        fw_params = pd.read_csv('data.csv')
+        fw_params = pd.read_csv('params.csv')
         return fw_params.to_json(date_format='iso', orient='split')
-
-    content_type, content_string = contents.split(',')
-
-    decoded = base64.b64decode(contents)
-    ret = pd.read_csv(io.StringIO(str(contents)))
-
-    return dict(ret)
 
 
 @app.callback(
