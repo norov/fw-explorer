@@ -207,6 +207,12 @@ def card_swipe():
 
                     ]
                 ),
+            dcc.Checklist(
+                id = 'hold',
+                options=[
+                    {'label': 'Hold', 'value': 'hold'},
+                ],
+                ),
             html.Button(
                 "Swipe",
                 id="btn_swipe",
@@ -481,6 +487,7 @@ def div_panel():
                                 dcc.Store(id='visible_lessvol', data = None),
                                 dcc.Store(id='visible_maxdd', data = None),
                                 dcc.Store(id='visible_random', data = None),
+                                dcc.Store(id='Swipe_data', data = None),
                         ],
                         #style={'width':'30%'},
                     ),

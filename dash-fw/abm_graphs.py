@@ -99,9 +99,12 @@ def generate_graph_prod(ret, rnd, tv, lv, maxdd):
 
 
 
-def plot_changes_params(swipe_type, param_range, param_mean, param_vol, param_skew, param_kurt,
-        chartists_mean, distrib_ret, distrib_chartists, qqplots_graph):
-    
+def plot_changes_params(swipe):
+
+    s = swipe[0]
+    swipe_type = s['swipe_type']
+    hold = len(swipe) > 1
+
     fig = make_subplots(
         rows=4, cols=3,
         specs=[[{"colspan": 1},{"colspan": 1},{"colspan": 1}],
@@ -117,51 +120,76 @@ def plot_changes_params(swipe_type, param_range, param_mean, param_vol, param_sk
                         'Chartists distribution',
                         swipe_type + " distribution",
                         "QQ-Plot"))
-    
-    fig.add_trace(go.Scattergl(x=param_range, y=param_mean, mode='lines',
-                        showlegend=False,
-                        line=dict(color='black', width=2)),
-                    row=1, col=1)
 
-    fig.add_trace(go.Scattergl(x=param_range, y=param_vol, mode='lines',
-                        showlegend=False,
-                        line=dict(color='black', width=2)),
-                    row=1, col=2)
-     
-    fig.add_trace(go.Scattergl(x=param_range, y=param_skew, mode='lines',
-                        showlegend=False,
-                        line=dict(color='black', width=2)),
-                    row=1, col=3)
-    
-    fig.add_trace(go.Scattergl(x=param_range, y=param_kurt, mode='lines',
-                        showlegend=False,
-                        line=dict(color='black', width=2)),
-                    row=2, col=1)
+    cc = ['black', 'red', 'blue', 'green']
+    for idx, s in enumerate(swipe):
+        param_range       = s[ 'param_range' ]
+        param_mean        = s[ 'param_mean' ]
+        param_vol         = s[ 'param_vol' ]
+        param_skew        = s[ 'param_skew' ]
+        param_kurt        = s[ 'param_kurt' ]
+        chartists_mean    = s[ 'chartists_mean']
+        distrib_ret       = s[ 'distrib_ret' ]
+        distrib_chartists = s[ 'distrib_chartists']
+        qqplots_graph     = s[ 'qqplots_graph']
 
-    fig.add_trace(go.Scattergl(x=param_range, y=chartists_mean, mode='lines',
-                        showlegend=False,
-                        line=dict(color='black', width=2)),
-                    row=2, col=2)
+        c = cc[idx % len(cc)]
     
+        fig.add_trace(go.Scattergl(x=param_range, y=param_mean, mode='lines',
+                            showlegend=False,
+                            line=dict(color=c, width=2)),
+                        row=1, col=1)
+
+        fig.add_trace(go.Scattergl(x=param_range, y=param_vol, mode='lines',
+                            showlegend=False,
+                            line=dict(color=c, width=2)),
+                        row=1, col=2)
+
+        fig.add_trace(go.Scattergl(x=param_range, y=param_skew, mode='lines',
+                            showlegend=False,
+                            line=dict(color=c, width=2)),
+                        row=1, col=3)
+
+        fig.add_trace(go.Scattergl(x=param_range, y=param_kurt, mode='lines',
+                            showlegend=False,
+                            line=dict(color=c, width=2)),
+                        row=2, col=1)
+
+        fig.add_trace(go.Scattergl(x=param_range, y=chartists_mean, mode='lines',
+                            showlegend=False,
+                            line=dict(color=c, width=2)),
+                        row=2, col=2)
     
-    cc = ['red', 'black', 'blue']
-    for i in range(len(distrib_ret)):
-        fig.add_trace(go.Scatter(distrib_ret[i],line=dict(color = cc[i], width=2),
-                                 marker=dict(color=plotly.colors.qualitative.Plotly[i+5])), 
-                                 row=3, col=1)
-    
-    for i in range(len(distrib_chartists)):
-        fig.add_trace(go.Scatter(distrib_chartists[i], line = dict(color = cc[i], width=2),
-                                 marker=dict(color=plotly.colors.qualitative.Plotly[i+5])), 
-                                 row=2, col=3)
-        
-    for i, qq in enumerate(qqplots_graph):
-        x = np.array([qq[0][0][0], qq[0][0][-1]])
-        fig.add_trace(go.Scattergl(x=qq[0][0], y=qq[0][1], mode='markers', 
-                                   marker=dict(color = cc[i])),row=3, col=3)
-        fig.add_trace(go.Scattergl(x=x, y=qq[1][1] + qq[1][0]*x, mode='lines', 
-                                   marker=dict(color = cc[i])), row=3, col=3)
-        fig.layout.update(showlegend=False)
+        st = ['dash', None, 'dashdot']
+        ms = ['square', 'circle', 'diamond']
+        for i in range(len(distrib_ret)):
+            if hold and i != 1:
+                continue
+            fig.add_trace(go.Scatter(distrib_ret[i],
+                                    line=dict(dash = st[i], width=2, color = c),
+                                    ), row=3, col=1)
+
+        for i in range(len(distrib_chartists)):
+            if hold and i != 1:
+                continue
+            fig.add_trace(go.Scatter(distrib_chartists[i],
+                             line = dict(dash = st[i], width=2, color = c),
+                                    ), row=2, col=3)
+
+        for i, qq in enumerate(qqplots_graph):
+            if hold and i != 1:
+                continue
+            x = np.array([qq[0][0][0], qq[0][0][-1]])
+            fig.add_trace(go.Scattergl(x=qq[0][0], y=qq[0][1], mode='markers',
+                                       marker_symbol = ms[i],
+                                       line=dict( color = c, dash = st[i])),
+                                       row=3, col=3)
+
+            fig.add_trace(go.Scattergl(x=x, y=qq[1][1] + qq[1][0]*x, mode='lines',
+                                       line=dict(dash = st[i], color = c)),
+                                       row=3, col=3)
+
+            fig.layout.update(showlegend=False)
     
     
     fig.update_layout(legend=dict(bordercolor="Black",borderwidth=0.5, font=dict(color='white')), 

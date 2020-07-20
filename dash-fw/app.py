@@ -124,11 +124,11 @@ def random_seed(n_clicks):
     ],
 )
 def set_seed(n_clicks, seed_val):
-    print('set_seed', n_clicks)
+    #print('set_seed', n_clicks)
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
-    print('set_seed', seed_val)
+    #print('set_seed', seed_val)
     update_seed(seed_val)
 
     return [ False ]
@@ -166,7 +166,7 @@ def populate_params(fw_params):
             for index, row in fw_params.iterrows()
             ]
 
-    print(options[0])
+    #print(options[0])
     return [ options, options[0]['value'] ]
 
 
@@ -224,10 +224,10 @@ def show_swipes(swipe_select,
                     Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
                     alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled,
                     fillna = False)
-    print(swipe_select, params)
-    print('sssssss', type(swipe_select))
+    #print(swipe_select, params)
+    #print('sssssss', type(swipe_select))
     param = params[swipe_select]
-    print('dddd', param)
+    #print('dddd', param)
 
     if param is None:
         swipe_start = None
@@ -337,6 +337,7 @@ def set_visible(value):
 @app.callback(
     [
         Output("sens",   "children"),
+        Output("Swipe_data",  "data"),
     ],
     [
         Input('btn_swipe', 'n_clicks')
@@ -369,6 +370,9 @@ def set_visible(value):
         State("swipe_step",  "value"),
         State("start_period",  "value"),
         State("stop_period",  "value"),
+
+        State("Swipe_data",  "data"),
+        State("hold",   "value"),
     ]
 )
 @timeit
@@ -391,7 +395,10 @@ def do_swipe(n_clicks,
              rvmean,
              rvmean_disabled,
              swipe_select, swipe_start, swipe_stop, swipe_step,
-             returns_start, returns_stop):
+             returns_start, returns_stop,
+             swipe_data,
+             hold,
+             ):
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
@@ -409,7 +416,7 @@ def do_swipe(n_clicks,
     distrib_chartists = []
     qqplots = []
     
-    dist_list = [0, len(swipe_range)//2,len(swipe_range)-1]
+    dist_list = [0, len(swipe_range)//2, len(swipe_range)-1]
     
     for i, param in enumerate(swipe_range):
         params[swipe_select] = param
@@ -441,31 +448,32 @@ def do_swipe(n_clicks,
             chartists = out['Nc'][-1, :]
             fig_dist = ff.create_distplot([chartists], group_labels=[str(param)])
             distrib_chartists.append(fig_dist['data'][1])
-            
-            
-            
-            #qq = qqplot(ret, line='s').gca().lines
-            #qqplots.append(qq)
         
-        
-    
-    fig = plot_changes_params(swipe_type = swipe_type,
-                              param_range=swipe_range,
-                              param_mean=sw_mean, 
-                              param_vol=sw_vol,
-                              param_skew=sw_skew,
-                              param_kurt=sw_kurt,
-                              chartists_mean=sw_chartists_mean,
-                              distrib_ret=distrib_returns,
-                              distrib_chartists = distrib_chartists,
-                              qqplots_graph=qqplots)
-    
+    swipe = {
+                'swipe_type'        : swipe_type,
+                'param_range'       : swipe_range,
+                'param_mean'        : sw_mean,
+                'param_vol'         : sw_vol,
+                'param_skew'        : sw_skew,
+                'param_kurt'        : sw_kurt,
+                'chartists_mean'    : sw_chartists_mean,
+                'distrib_ret'       : distrib_returns,
+                'distrib_chartists' : distrib_chartists,
+                'qqplots_graph'     : qqplots,
+            }
 
-    return [ dcc.Graph( id="param_sens",
-            style={
-                'height': 800
-                },
-            figure = fig)
+    print(hold)
+    if swipe_data is None or hold is None or not hold:
+        swipe_data = [swipe]
+    else:
+        swipe_data.append(swipe)
+        print(len(swipe_data))
+
+    fig = plot_changes_params(swipe_data)
+
+    return [
+            dcc.Graph( id="param_sens", style={ 'height': 800 }, figure = fig),
+            swipe_data,
            ]
 
 
@@ -786,7 +794,7 @@ def make_params(ml, ss, periods, paths, prob_type,
                 params[param] = 0
 
     params["rvmean"] = None if rvmean_disabled else rvmean
-    print(type(params))
+    #print(type(params))
 
     return params
     
