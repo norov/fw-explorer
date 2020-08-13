@@ -72,6 +72,13 @@ def card0():
             drc.ButtonInputButton('Random seed', 'Set seed',
                 'rnd_seed', 'set_seed',
                 id =  'seed_val', value = 0),
+            html.Button(
+                "Screenshot",
+                id="btn_export",
+                style = {'color': 'inherit',
+                         'display': 'flex',
+                         "width": "100%"},
+                ),
             dcc.Dropdown(
                 id="model-select",
                 value = None,
@@ -217,8 +224,10 @@ def card_swipe():
             html.Button(
                 "Swipe",
                 id="btn_swipe",
-                style = {'color': 'inherit'},
-                ),
+                style = {'color': 'inherit',
+                         'display': 'flex',
+                         "width": "100%"},
+                )
             ]
         )
 

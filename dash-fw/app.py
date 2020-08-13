@@ -26,6 +26,9 @@ import os
 import base64
 import io
 
+import pyautogui
+
+
 globdata = {}
 
 def timeit(method):
@@ -483,6 +486,24 @@ def do_swipe(n_clicks,
             dcc.Graph( id="param_sens", style={ 'height': 800 }, figure = fig),
             swipe_data,
            ]
+
+@app.callback(
+        Output('btn_export', 'style'),
+        [
+            Input('btn_export', 'n_clicks'),
+        ]
+    )
+def export_results(n_clicks):
+    if n_clicks is None:
+        raise dash.exceptions.PreventUpdate()
+    
+    #im = ImageGrab.grab()
+    im = pyautogui.screenshot()    
+    im.show()
+
+    return {'color': 'inherit',
+            'display': 'flex',
+            "width": "100%"}
 
 
 @app.callback(
