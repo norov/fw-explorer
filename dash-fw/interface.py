@@ -481,7 +481,7 @@ def div_panel():
                                 card_swipe(),
                                 card2(),
                                 card3(),
-                                html.Div(id='intermediate-value', style={'display': 'none'}),
+                                dcc.Store(id='cal_params'),
                                 dcc.Store(id='simulated_data'),
                                 dcc.Store(id='visible_topvol', data = None),
                                 dcc.Store(id='visible_lessvol', data = None),

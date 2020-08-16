@@ -155,7 +155,7 @@ def show_return_params(swipe_type, paths):
         Output("model-select",     "value"),
     ],
     [
-        Input("intermediate-value","children"),
+        Input("cal_params","data"),
     ],
 )
 @timeit
@@ -278,13 +278,14 @@ def show_swipes(tab):
         Input("model-select","value"),
     ],
     [
-        State("intermediate-value","children"),
+        State("cal_params","data"),
     ],
 )
 @timeit
 def set_params(model_num, fw_params):
     if fw_params is None:
         raise dash.exceptions.PreventUpdate()
+
     fw_params = pd.read_json(fw_params, orient='split')
     vals = fw_params.iloc[model_num]
     if vals.empty:
@@ -302,7 +303,7 @@ def set_params(model_num, fw_params):
 def enable_revmean(cb):
     return not cb
 
-@app.callback(Output('intermediate-value', 'children'),
+@app.callback(Output('cal_params', 'data'),
               [Input('upload', 'contents')],
               )
 @timeit
@@ -480,7 +481,7 @@ def do_swipe(n_clicks,
 @app.callback(
     Output("model-type",   "options"),
     [
-        Input('intermediate-value', 'children')
+        Input('cal_params', 'data')
     ],
 )
 @timeit
