@@ -169,83 +169,69 @@ def populate_params(fw_params):
     #print(options[0])
     return [ options, options[0]['value'] ]
 
+def param_to_swipe(params, model_num, param):
+    if param == 'phi':
+        start = params.iloc[model_num][11]
+        stop = params.iloc[model_num][12]
+
+    elif param == 'chi':
+        start = params.iloc[model_num][13]
+        stop = params.iloc[model_num][14]
+
+    elif param == 'eta':
+        start = params.iloc[model_num][15]
+        stop = params.iloc[model_num][16]
+
+    elif param == 'alpha_w':
+        start = params.iloc[model_num][17]
+        stop = params.iloc[model_num][18]
+
+    elif param == 'alpha_O':
+        start = params.iloc[model_num][19]
+        stop = params.iloc[model_num][20]
+
+    elif param == 'alpha_n':
+        start = params.iloc[model_num][21]
+        stop = params.iloc[model_num][22]
+
+    elif param == 'alpha_p':
+        start = params.iloc[model_num][23]
+        stop = params.iloc[model_num][24]
+
+    elif param == 'sigma_f':
+        start = params.iloc[model_num][25]
+        stop = params.iloc[model_num][26]
+
+    elif param == 'sigma_c':
+        start = params.iloc[model_num][27]
+        stop = params.iloc[model_num][28]
+    else:
+        print('Unknown parameter:', param)
+
+    step = (stop - start) / 10
+    return start, step, stop
 
 @app.callback(
     [
         Output("swipe_start",  "value"),
-        Output("swipe_stop",  "value"),
         Output("swipe_step",  "value"),
+        Output("swipe_stop",  "value"),
     ],
     [
+        Input("model-select", "value"),
         Input("swipe-select", "value"),
+        Input("cal_params", "data"),
     ],
-    [
-        State("slider-ml", "value"),
-        State("slider-ss", "value"),
-        State("periods", "value"),
-        State("paths", "value"),
-        State("model-type", "value"),
-        State("Phi",     "value"),
-        State("Chi",     "value"),
-        State("Eta",     "value"),
-        State("alpha_w", "value"),
-        State("alpha_o", "value"),
-        State("alpha_n", "value"),
-        State("alpha_p", "value"),
-        State("sigma_f", "value"),
-        State("sigma_c", "value"),
-        State("rvmean", "value"),
-        State("rvmean", "disabled"),
-    ]
 )
 @timeit
-def show_swipes(swipe_select,
-    ml,
-    ss,
-    periods,
-    paths,
-    prob_type,
-    Phi,
-    Chi,
-    Eta,
-    alpha_w,
-    alpha_o,
-    alpha_n,
-    alpha_p,
-    sigma_f,
-    sigma_c,
-    rvmean,
-    rvmean_disabled,
-):
-    if swipe_select is None:
+def set_swipes(model_num, swipe_select, fw_params,):
+    if swipe_select is None or fw_params is None or model_num is None:
         raise dash.exceptions.PreventUpdate()
 
-    params = make_params(ml, ss, periods, paths, prob_type,
-                    Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
-                    alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled,
-                    fillna = False)
-    #print(swipe_select, params)
-    #print('sssssss', type(swipe_select))
-    param = params[swipe_select]
-    #print('dddd', param)
+    fw_params = pd.read_json(fw_params, orient='split')
+    start, step, stop = param_to_swipe(fw_params, model_num, swipe_select)
 
-    if param is None:
-        swipe_start = None
-        swipe_stop = None
-        swipe_step= None
-    else:
-       if swipe_select == 'alpha_o':
-           a = np.abs(param)
-           swipe_start = param - a / 2
-           swipe_stop  = param + a * 1.5
-           swipe_step  = (swipe_stop - swipe_start) / 10
-       else:
-           swipe_start = param / 2
-           swipe_stop  = param * 1.5
-           swipe_step  = param / 10
-    return [
-            swipe_start, swipe_stop, swipe_step,
-            ]
+    return start, step, stop
 
 
 @app.callback(
