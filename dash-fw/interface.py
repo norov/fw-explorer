@@ -279,6 +279,13 @@ def card2():
                 id="btn-simulate",
                 style = {'color': 'inherit', },
                 ),
+            dcc.Checklist(
+                id = 'pick_checkbox',
+                options=[
+                    {'label': 'Start from picked point', 'value': 'enable'},
+                ],
+		value = []
+                ),
             html.Button(
                 "Pick Start",
                 id="pick_start",

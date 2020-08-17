@@ -361,6 +361,7 @@ def set_visible(value):
         State("Swipe_data",  "data"),
         State("hold",   "value"),
         State("start_params", "data"),
+        State("pick_checkbox", "value"),
     ]
 )
 @timeit
@@ -387,6 +388,7 @@ def do_swipe(n_clicks,
              swipe_data,
              hold,
              start_params,
+             pick_checkbox,
              ):
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
@@ -409,6 +411,10 @@ def do_swipe(n_clicks,
     
     for i, param in enumerate(swipe_range):
         params[swipe_select] = param
+
+        if pick_checkbox == []:
+            start_params = None
+
         out = generate_constraint(params, start_params)
         p, v, c, sk, kur = model_stat(swipe_type, out, returns_start, returns_stop)
         sw_mean.append(p)
@@ -692,7 +698,6 @@ def pick_start_point(n_clicks, click_data, data,
            'Wf' : globdata['Wf'].T[ln, x-2 : x+1],
            'Wc' : globdata['Wc'].T[ln, x-2 : x+1],
            }
-    print(start_params)
     return [ start_params ]
 
 def highlight_trace(figure, trace, yes):
@@ -854,6 +859,7 @@ def make_params(ml, ss, periods, paths, prob_type,
         State("rvmean", "value"),
         State("rvmean", "disabled"),
         State("start_params", "data"),
+        State("pick_checkbox", "value"),
     ],
 )
 @timeit
@@ -876,6 +882,7 @@ def update_simulated_data(
     rvmean,
     rvmean_disabled,
     start_params,
+    pick_checkbox,
 ):
     global globdata
 
@@ -887,6 +894,8 @@ def update_simulated_data(
                     alpha_n, alpha_p, sigma_f, sigma_c,
                     rvmean, rvmean_disabled,
                     )
+    if pick_checkbox == []:
+        start_params = None
 
     ret =  generate_constraint(params, start_params)
     globdata = ret.copy()
