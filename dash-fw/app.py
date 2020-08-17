@@ -360,6 +360,7 @@ def set_visible(value):
 
         State("Swipe_data",  "data"),
         State("hold",   "value"),
+        State("start_params", "data"),
     ]
 )
 @timeit
@@ -385,6 +386,7 @@ def do_swipe(n_clicks,
              returns_start, returns_stop,
              swipe_data,
              hold,
+             start_params,
              ):
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
@@ -392,7 +394,7 @@ def do_swipe(n_clicks,
     swipe_range = np.append(np.arange(swipe_start, swipe_stop, swipe_step), swipe_stop)
     params = make_params(ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
-                    alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled,)
+                    alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled, fillna = True)
 
     sw_mean = []
     sw_vol = []
@@ -407,7 +409,7 @@ def do_swipe(n_clicks,
     
     for i, param in enumerate(swipe_range):
         params[swipe_select] = param
-        out = generate_constraint(params)
+        out = generate_constraint(params, start_params)
         p, v, c, sk, kur = model_stat(swipe_type, out, returns_start, returns_stop)
         sw_mean.append(p)
         sw_vol.append(v)
@@ -616,6 +618,7 @@ def set_rand(n_clicks, npath, data):
     [
         Output("selected_curves", "children"),
         Output("old_selected_curves", "children"),
+        Output("click_data", "data"),
     ],
     [
         Input("graph_all_curves", "clickData"),
@@ -649,8 +652,48 @@ def select_trace(clickData, sel_curves, data):
     else:
         sel_curves.remove(line_n)
 
-    return sel_curves, old_sel_curves
+    return sel_curves, old_sel_curves, clickData
 
+@app.callback(
+    [
+        Output("start_params", "data"),
+    ],
+    [
+        Input("pick_start", "n_clicks"),
+    ],
+    [
+        State("click_data", "data"),
+        State("simulated_data", "data"),
+        State("visible_random", "data"),
+        State("visible_topvol", "data"),
+        State("visible_lessvol", "data"),
+        State("visible_maxdd", "data"),
+    ],
+)
+def pick_start_point(n_clicks, click_data, data,
+                    rnd, tv, lv, mdd):
+    nplots = 4
+    if n_clicks == [] or click_data is None:
+        raise dash.exceptions.PreventUpdate()
+
+    line_n = click_data['points'][0]['curveNumber'] // nplots
+    x = click_data['points'][0]['x']
+    ln = rnd[line_n]
+    if x < 2:
+        raise dash.exceptions.PreventUpdate()
+
+    start_params = {
+           'P'  : globdata['P'].T[ln,  x-2 : x+1],
+           'A'  : globdata['A'].T[ln,  x-2 : x+1],
+           'Nc' : globdata['Nc'].T[ln, x-2 : x+1],
+           'Nf' : globdata['Nf'].T[ln, x-2 : x+1],
+           'Df' : globdata['Df'].T[ln, x-2 : x+1],
+           'Dc' : globdata['Dc'].T[ln, x-2 : x+1],
+           'Wf' : globdata['Wf'].T[ln, x-2 : x+1],
+           'Wc' : globdata['Wc'].T[ln, x-2 : x+1],
+           }
+    print(start_params)
+    return [ start_params ]
 
 def highlight_trace(figure, trace, yes):
     nplots = 4
@@ -810,6 +853,7 @@ def make_params(ml, ss, periods, paths, prob_type,
         State("sigma_c", "value"),
         State("rvmean", "value"),
         State("rvmean", "disabled"),
+        State("start_params", "data"),
     ],
 )
 @timeit
@@ -831,6 +875,7 @@ def update_simulated_data(
     sigma_c,
     rvmean,
     rvmean_disabled,
+    start_params,
 ):
     global globdata
 
@@ -843,7 +888,7 @@ def update_simulated_data(
                     rvmean, rvmean_disabled,
                     )
 
-    ret =  generate_constraint(params)
+    ret =  generate_constraint(params, start_params)
     globdata = ret.copy()
 
     return [ True ]

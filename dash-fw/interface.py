@@ -279,6 +279,11 @@ def card2():
                 id="btn-simulate",
                 style = {'color': 'inherit', },
                 ),
+            html.Button(
+                "Pick Start",
+                id="pick_start",
+                style = {'color': 'inherit', },
+                ),
             ],
         )
 
@@ -483,6 +488,8 @@ def div_panel():
                                 card2(),
                                 card3(),
                                 dcc.Store(id='cal_params'),
+				dcc.Store(id='click_data'),
+                                dcc.Store(id='start_params'),
                                 dcc.Store(id='simulated_data'),
                                 dcc.Store(id='visible_topvol', data = None),
                                 dcc.Store(id='visible_lessvol', data = None),

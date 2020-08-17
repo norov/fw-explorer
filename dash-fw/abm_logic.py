@@ -25,7 +25,7 @@ def mean_price(price, period, rvmean):
     # Assuming starting price is 0
     return np.mean(price[0 : period, :]) * period / rvmean
 
-def calculate_returns(params):
+def calculate_returns(params, start_params):
     global rand
     #print(rand.shape)
     rvmean = params["rvmean"]
@@ -70,6 +70,16 @@ def calculate_returns(params):
     pstar = np.zeros([sim_L, nr])
     model_vol = np.zeros([sim_L, nr])
 
+    if start_params is not None:
+        P[0:3, :] = np.matrix(start_params['P']).T
+        A[0:3, :] = np.matrix(start_params['A']).T
+        Nc[0:3, :] = np.matrix(start_params['Nc']).T
+        Nf[0:3, :] = np.matrix(start_params['Nf']).T
+        Dc[0:3, :] = np.matrix(start_params['Dc']).T
+        Df[0:3, :] = np.matrix(start_params['Df']).T
+        Wc[0:3, :] = np.matrix(start_params['Wc']).T
+        Wf[0:3, :] = np.matrix(start_params['Wf']).T
+
     for t in range(2, sim_L):  # generation of single signal over time
         # portfolio performance
         Gf[t] = (np.exp(P[t, :]) - np.exp(P[t - 1, :])) * Df[t - 2]
@@ -112,12 +122,12 @@ def calculate_returns(params):
         model_vol[t, :] = mu * (Nf[t, :] * sigma_f + Nc[t, :] * sigma_c)
 
     log_r = P[1 : sim_L + 1, :] - P[0:sim_L, :]
-    return log_r, Nc, model_vol
+    return log_r, Nc, model_vol, P, Nc, Nf, A, Dc, Df, Wc, Wf
 
 
-def generate_constraint(params):
+def generate_constraint(params, start_params = None):
     t_start = time.time()
-    log_r, Nc, model_vol = calculate_returns(params)
+    log_r, Nc, model_vol, P, Nc, Nf, A, Dc, Df, Wc, Wf = calculate_returns(params, start_params)
 
     # log -> simple returns
     simple_R = np.exp(log_r) - 1.0
@@ -126,10 +136,16 @@ def generate_constraint(params):
     output = {"H": None,
               "exog_signal": simple_R,
               "prices": np.array(np.cumprod(simple_R + 1, 0)),
-              "Nc": Nc,
               "model_vol": model_vol,
+	      'P'        : P,
+	      'A'        : A,
+	      'Nc'       : Nc,
+	      'Nf'       : Nf,
+	      'Df'       : Df,
+	      'Dc'       : Dc,
+	      'Wf'       : Wf,
+	      'Wc'       : Wc,
              }
-    #print(time.time() - t_start)
     return output
 
 def model_stat(swipe_type, model_out, returns_start, returns_stop):
