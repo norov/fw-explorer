@@ -240,7 +240,7 @@ def plot_changes_params(swipe):
 
 def distrib_plots(ret, sel_curves):
     
-    colors_rand = list(matplotlib.colors.cnames.values())
+    cc = ['red', 'blue', 'black', 'green', 'orange', 'yellow', 'cyan']
         
     # Extract dict
     simple_R = ret["exog_signal"]
@@ -276,36 +276,36 @@ def distrib_plots(ret, sel_curves):
         # top left
         fig.add_trace(go.Scatter(x=x,y=np.abs(simple_R[:,i]),mode='lines',
                                  name='Sim_'+str(sel_curves[i]+1),legendgroup='Sim'+str(i+1),
-                                 marker=dict(color=colors_rand[color_selected]),line=dict(width=0.7),
+                                 marker=dict(color=cc[i]),line=dict(width=0.7),
                                  showlegend=True),row=1, col=2)
         # top right
         fig.add_trace(go.Scatter(x=x,y=prices[:,i],mode='lines',
                                  name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
-                                 marker=dict(color=colors_rand[color_selected]),line=dict(width=0.7),
+                                 marker=dict(color=cc[i]),line=dict(width=0.7),
                                  showlegend=False),row=1, col=1)
         # middle
         fig.add_trace(go.Histogram(fig_dist['data'][i],xbins=dict(size=0.002),
                                  name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
-                                 marker=dict(color=colors_rand[color_selected]),
+                                 marker=dict(color=cc[i]),
                                  showlegend=False), row=3, col=1)
         
         fig.add_trace(go.Scatter(fig_dist['data'][i+num_sim],line=dict(width=1.5),
                                  name='Sim_'+str(i+1),legendgroup='Sim'+str(i+1),
-                                 marker=dict(color=colors_rand[color_selected]),showlegend=False), 
+                                 marker=dict(color=cc[i]),showlegend=False), 
                                  row=3, col=1)
         # bottom
         fig.add_trace(go.Scatter(x=simple_R[:,i], y = [0.1*i + 1 for j in range(simple_R[:,i].shape[0])], 
-                                 mode = 'markers', marker=dict(color=colors_rand[color_selected], symbol='line-ns-open'),
+                                 mode = 'markers', marker=dict(color=cc[i], symbol='line-ns-open'),
                                  line=dict(width=0.7),name='Sim_'+str(i+1) ,showlegend=False,
                                  legendgroup='Sim'+str(i+1)), row=5, col=1)
         
     # Layout
     r = [1,3,5]
-    fig.update_xaxes(showgrid=False,zeroline=False,color='white', row=1, col=2)
-    fig.update_yaxes(showgrid=False,zeroline=False,color='white', row=1, col=2)
+    fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=1, col=2)
+    fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=1, col=2)
     for i in r: 
-        fig.update_xaxes(showgrid=False,zeroline=False,color='white', row=i, col=1)
-        fig.update_yaxes(showgrid=False,zeroline=False,color='white', row=i, col=1)
+        fig.update_xaxes(showgrid=True,zeroline=False,color='white', row=i, col=1)
+        fig.update_yaxes(showgrid=True,zeroline=False,color='white', row=i, col=1)
     
     for l in fig['layout']['annotations']:
         l['font'] = dict(size=14,color='white')
@@ -313,7 +313,6 @@ def distrib_plots(ret, sel_curves):
     fig.update_layout(height=700,legend=dict(bordercolor="Black",borderwidth=0.5, font=dict(color='white')), 
                       xaxis3_showticklabels=False,
                       paper_bgcolor='rgba(0,0,0,0)',
-                      plot_bgcolor='rgba(0,0,0,0)',
                       hovermode="closest")
     
     return fig
