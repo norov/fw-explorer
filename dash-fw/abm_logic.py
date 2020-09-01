@@ -11,11 +11,8 @@ rand = np.random.rand(2, 1, 1)
 
 def update_seed(seed):
     global rand
-    print('WTF')
-    print(rand.shape)
     np.random.seed(seed)
     rand = np.random.rand(2, 1, 1)
-    print(rand)
 
 
 def mean_price(price, period, rvmean):
@@ -25,10 +22,18 @@ def mean_price(price, period, rvmean):
     # Assuming starting price is 0
     return np.mean(price[0 : period, :]) * period / rvmean
 
+
+def mean_ret(price, period, retmean):
+    if period >= retmean:
+        return (price[period, :] - price[period - retmean, :]) / retmean
+
+    return (price[period, :] - price[0, :])  / retmean
+
+
 def calculate_returns(params, start_params):
     global rand
-    #print(rand.shape)
     rvmean = params["rvmean"]
+    retmean = params["retmean"]
     nr = params["num_runs"]
     sim_L = params["periods"]
     mu = params["mu"]
@@ -68,6 +73,7 @@ def calculate_returns(params, start_params):
     Nf = np.zeros([sim_L, nr])  ##progostic state
     P = np.zeros([sim_L + 1, nr])  ##progostic state
     pstar = np.zeros([sim_L, nr])
+    cstar = np.zeros([sim_L, nr])
     model_vol = np.zeros([sim_L, nr])
 
     if start_params is not None:
@@ -79,6 +85,8 @@ def calculate_returns(params, start_params):
         Df[0:3, :] = np.matrix(start_params['Df']).T
         Wc[0:3, :] = np.matrix(start_params['Wc']).T
         Wf[0:3, :] = np.matrix(start_params['Wf']).T
+        pstar[0:3, :] = np.matrix(start_params['pstar']).T
+        cstar[0:3, :] = np.matrix(start_params['cstar']).T
 
     for t in range(2, sim_L):  # generation of single signal over time
         # portfolio performance
@@ -110,7 +118,8 @@ def calculate_returns(params, start_params):
 
         # demands
         Df[t, :] = phi * (pstar[t-1, :] - P[t, :]) + sigma_f * rand[0, : nr, t]
-        Dc[t, :] = chi * (P[t, :] - P[t - 1, :])   + sigma_c * rand[1, : nr, t]
+        Dc[t, :] = chi * (cstar[t-1, :] + \
+	                  P[t, :] - P[t - 1, :])   + sigma_c * rand[1, : nr, t]
 
         # pricing
         P[t + 1, :] = P[t, :]\
@@ -119,15 +128,19 @@ def calculate_returns(params, start_params):
         if rvmean is not  None:
             pstar[t, :] = mean_price(P, t, rvmean)
 
+        if retmean is not  None:
+            cstar[t, :] = mean_ret(P, t, retmean)
+
         model_vol[t, :] = mu * (Nf[t, :] * sigma_f + Nc[t, :] * sigma_c)
 
     log_r = P[1 : sim_L + 1, :] - P[0:sim_L, :]
-    return log_r, Nc, model_vol, P, Nc, Nf, A, Dc, Df, Wc, Wf
+    return log_r, Nc, model_vol, P, Nc, Nf, A, Dc, Df, Wc, Wf, pstar, cstar
 
 
 def generate_constraint(params, start_params = None):
     t_start = time.time()
-    log_r, Nc, model_vol, P, Nc, Nf, A, Dc, Df, Wc, Wf = calculate_returns(params, start_params)
+    log_r, Nc, model_vol, P, Nc, Nf,\
+        A, Dc, Df, Wc, Wf, pstar, cstar = calculate_returns(params, start_params)
 
     # log -> simple returns
     simple_R = np.exp(log_r) - 1.0
@@ -135,7 +148,7 @@ def generate_constraint(params, start_params = None):
     # H to be determined
     output = {"H": None,
               "exog_signal": simple_R,
-              "prices": np.array(np.cumprod(simple_R + 1, 0)),
+              "prices"   : np.exp(P),
               "model_vol": model_vol,
 	      'P'        : P,
 	      'A'        : A,
@@ -145,15 +158,24 @@ def generate_constraint(params, start_params = None):
 	      'Dc'       : Dc,
 	      'Wf'       : Wf,
 	      'Wc'       : Wc,
+	      'pstar'    : pstar,
+	      'cstar'    : cstar,
              }
     return output
 
 def model_stat(swipe_type, model_out, returns_start, returns_stop):
+    nvals = model_out['prices'].shape[1] * (returns_stop - returns_start)
+
     if swipe_type == 'Return':
         data = model_out['exog_signal'][returns_start : returns_stop, :].ravel()
     else:
         data = model_out['prices'][returns_start : returns_stop, :].ravel()
-    return np.mean(data),\
+
+    p = np.mean(data)
+    v = np.std(data)
+    plo = p - v / nvals**0.5
+    phi = p + v / nvals**0.5
+    return [p, plo, phi],\
            np.std(data),\
            np.mean(model_out['Nc'].ravel()),\
            skew(data),\

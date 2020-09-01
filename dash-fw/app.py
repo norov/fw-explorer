@@ -289,6 +289,12 @@ def set_params(model_num, fw_params):
 def enable_revmean(cb):
     return not cb
 
+@app.callback(Output('retmean', 'disabled'),
+              [Input('retmean_cb', 'value')],
+              )
+def enable_revmean(cb):
+    return not cb
+
 @app.callback(Output('cal_params', 'data'),
               [Input('upload', 'contents')],
               )
@@ -349,6 +355,8 @@ def set_visible(value):
         State("sigma_c", "value"),
         State("rvmean", "value"),
         State("rvmean", "disabled"),
+        State("retmean", "value"),
+        State("retmean", "disabled"),
 
         # Swipe parameters
         State("swipe-select",  "value"),
@@ -383,6 +391,8 @@ def do_swipe(n_clicks,
              sigma_c,
              rvmean,
              rvmean_disabled,
+             retmean,
+             retmean_disabled,
              swipe_select, swipe_start, swipe_stop, swipe_step,
              returns_start, returns_stop,
              swipe_data,
@@ -396,7 +406,10 @@ def do_swipe(n_clicks,
     swipe_range = np.append(np.arange(swipe_start, swipe_stop, swipe_step), swipe_stop)
     params = make_params(ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
-                    alpha_p, sigma_f, sigma_c, rvmean, rvmean_disabled, fillna = True)
+                    alpha_p, sigma_f, sigma_c,
+		    rvmean, rvmean_disabled,
+		    retmean, retmean_disabled,
+		    fillna = True)
 
     sw_mean = []
     sw_vol = []
@@ -408,6 +421,8 @@ def do_swipe(n_clicks,
     qqplots = []
     
     dist_list = [0, len(swipe_range)//2, len(swipe_range)-1]
+
+    nvals = periods * (returns_stop - returns_start)
     
     for i, param in enumerate(swipe_range):
         params[swipe_select] = param
@@ -457,12 +472,10 @@ def do_swipe(n_clicks,
                 'qqplots_graph'     : qqplots,
             }
 
-    print(hold)
     if swipe_data is None or hold is None or not hold:
         swipe_data = [swipe]
     else:
         swipe_data.append(swipe)
-        print(len(swipe_data))
 
     fig = plot_changes_params(swipe_data)
 
@@ -697,6 +710,8 @@ def pick_start_point(n_clicks, click_data, data,
            'Dc' : globdata['Dc'].T[ln, x-2 : x+1],
            'Wf' : globdata['Wf'].T[ln, x-2 : x+1],
            'Wc' : globdata['Wc'].T[ln, x-2 : x+1],
+           'pstar' : globdata['pstar'].T[ln, x-2 : x+1],
+           'cstar' : globdata['cstar'].T[ln, x-2 : x+1],
            }
     return [ start_params ]
 
@@ -801,7 +816,8 @@ def update_graph(data, rnd, topvol, lessvol, maxdd):
 def make_params(ml, ss, periods, paths, prob_type,
                 Phi, Chi, Eta, alpha_w, alpha_o,
                 alpha_n, alpha_p, sigma_f, sigma_c,
-                rvmean, rvmean_disabled, fillna = True
+                rvmean, rvmean_disabled,
+		retmean, retmean_disabled, fillna = True
                 ):
 
     params = {
@@ -829,7 +845,7 @@ def make_params(ml, ss, periods, paths, prob_type,
                 params[param] = 0
 
     params["rvmean"] = None if rvmean_disabled else rvmean
-    #print(type(params))
+    params["retmean"] = None if retmean_disabled else retmean
 
     return params
     
@@ -858,6 +874,8 @@ def make_params(ml, ss, periods, paths, prob_type,
         State("sigma_c", "value"),
         State("rvmean", "value"),
         State("rvmean", "disabled"),
+        State("retmean", "value"),
+        State("retmean", "disabled"),
         State("start_params", "data"),
         State("pick_checkbox", "value"),
     ],
@@ -881,6 +899,8 @@ def update_simulated_data(
     sigma_c,
     rvmean,
     rvmean_disabled,
+    retmean,
+    retmean_disabled,
     start_params,
     pick_checkbox,
 ):
@@ -893,6 +913,7 @@ def update_simulated_data(
                     Phi, Chi, Eta, alpha_w, alpha_o,
                     alpha_n, alpha_p, sigma_f, sigma_c,
                     rvmean, rvmean_disabled,
+		    retmean, retmean_disabled,
                     )
     if pick_checkbox == []:
         start_params = None

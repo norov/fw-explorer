@@ -124,7 +124,7 @@ def plot_changes_params(swipe):
     cc = ['black', 'red', 'blue', 'green']
     for idx, s in enumerate(swipe):
         param_range       = s[ 'param_range' ]
-        param_mean        = s[ 'param_mean' ]
+        param_mean        = np.array(s[ 'param_mean' ])
         param_vol         = s[ 'param_vol' ]
         param_skew        = s[ 'param_skew' ]
         param_kurt        = s[ 'param_kurt' ]
@@ -134,10 +134,25 @@ def plot_changes_params(swipe):
         qqplots_graph     = s[ 'qqplots_graph']
 
         c = cc[idx % len(cc)]
-    
-        fig.add_trace(go.Scattergl(x=param_range, y=param_mean, mode='lines',
+        fig.add_trace(
+	               go.Scattergl(x=param_range, y=param_mean[:, 0],
+		            mode='lines',
                             showlegend=False,
-                            line=dict(color=c, width=2)),
+		            name = 'Mean',
+                            line = dict(color=c, width=2)),
+                        row=1, col=1)
+        fig.add_trace(
+	               go.Scattergl(
+		            name = 'Mean conf_int',
+		            x = list(param_range) + list(param_range)[::-1],
+			    y = list(param_mean[:, 1]) + list(param_mean[:, 2])[::-1],
+			    fill = 'toself',
+			    fillcolor = c,
+			    line = dict(color='rgba(255,255,255, 0)'),
+		            opacity = 0.2,
+			    hoverinfo="skip",
+			    showlegend=False
+			    ),
                         row=1, col=1)
 
         fig.add_trace(go.Scattergl(x=param_range, y=param_vol, mode='lines',

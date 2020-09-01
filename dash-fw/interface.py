@@ -260,7 +260,7 @@ def card2():
                         "placement": "top"},
                 value=1
                 ),
-            drc.CheckboxSlider("Reverse to mean", 'rvmean_cb', enabled = False,
+            drc.CheckboxSlider("Fundamental price is mean", 'rvmean_cb', enabled = False,
                 id = 'rvmean',
                 min = 1,
                 max = 365,
@@ -273,6 +273,20 @@ def card2():
                     "placement": "top"
                     },
                 value = 180,
+                ),
+            drc.CheckboxSlider("Effective return is mean", 'retmean_cb', enabled = False,
+                id = 'retmean',
+                min = 1,
+                max = 21,
+                marks={
+                    i: str(i)
+                    for i in range(0, 21, 5)
+                    },
+                tooltip = {
+                    "always_visible": False,
+                    "placement": "top"
+                    },
+                value = 5,
                 ),
             html.Button(
                 "Simulate",
