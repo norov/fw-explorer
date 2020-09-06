@@ -1,5 +1,6 @@
 import time
 import importlib
+import glob
 
 import dash
 import dash_core_components as dcc
@@ -30,6 +31,7 @@ import pyautogui
 
 
 globdata = {}
+loaddata = {}
 
 def timeit(method):
 
@@ -265,13 +267,30 @@ def show_swipes(tab):
     ],
     [
         Input("model-select","value"),
+        Input("Load_trigger","data"),
     ],
     [
         State("cal_params","data"),
     ],
 )
 @timeit
-def set_params(model_num, fw_params):
+def set_params(model_num, Load_trigger, fw_params):
+    ctx = dash.callback_context
+
+    if ctx.triggered[0]['prop_id'] == 'Load_trigger.data':
+        return [
+                loaddata["model_type"],
+                loaddata["Phi"],
+                loaddata["Chi"],
+                loaddata["Eta"],
+                loaddata["alpha_w"],
+                loaddata["alpha_o"],
+                loaddata["alpha_n"],
+                loaddata["alpha_p"],
+                loaddata["sigma_f"],
+                loaddata["sigma_c"],
+                ]
+
     if fw_params is None:
         raise dash.exceptions.PreventUpdate()
 
@@ -336,7 +355,8 @@ def set_visible(value):
         Output("Swipe_data",  "data"),
     ],
     [
-        Input('btn_swipe', 'n_clicks')
+        Input('btn_swipe', 'n_clicks'),
+        Input('Load_trigger', 'data'),
     ],
     [
         State("swipe-type", "value"),
@@ -376,7 +396,7 @@ def set_visible(value):
     ]
 )
 @timeit
-def do_swipe(n_clicks,
+def do_swipe(n_clicks, load_trigger,
              swipe_type,
              ml,
              ss,
@@ -403,6 +423,14 @@ def do_swipe(n_clicks,
              start_params,
              pick_checkbox,
              ):
+    ctx = dash.callback_context
+
+    if ctx.triggered[0]['prop_id'] == 'Load_trigger.data':
+        if not 'sens' in loaddata or not 'swipe_data' in loaddata:
+            raise dash.exceptions.PreventUpdate()
+        return [loaddata['sens'], loaddata['swipe_data']]
+
+
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
@@ -781,10 +809,18 @@ def update_trace(sel_curves, old_sel_curves, figure):
     [
         Input('selected_curves', 'children'),
         Input('simulated_data', 'data'),
+        Input('Load_trigger', 'data'),
     ]
 )
 @timeit
-def update_sel_curves(sel_curves, ret):
+def update_sel_curves(sel_curves, ret, Load_trigger):
+    ctx = dash.callback_context
+    if ctx.triggered[0]['prop_id'] == 'Load_trigger.data':
+        if 'dv' not in loaddata:
+            raise dash.exceptions.PreventUpdate()
+
+        return [loaddata['dv']]
+
     if sel_curves == [] or ret is None:
         raise dash.exceptions.PreventUpdate()
 
@@ -815,10 +851,18 @@ def update_sel_curves(sel_curves, ret):
         Input("visible_topvol", "data"),
         Input("visible_lessvol", "data"),
         Input("visible_maxdd", "data"),
+        Input("Load_trigger", "data"),
     ]
 )
 @timeit
-def update_graph(data, rnd, topvol, lessvol, maxdd):
+def update_graph(data, rnd, topvol, lessvol, maxdd, Load_trigger):
+    ctx = dash.callback_context
+    if ctx.triggered[0]['prop_id'] == 'Load_trigger.data':
+        if 'main' not in loaddata:
+            raise dash.exceptions.PreventUpdate()
+
+        return [loaddata['main']]
+
     if data is None:
         raise dash.exceptions.PreventUpdate()
 
@@ -946,7 +990,7 @@ def update_simulated_data(
 
 @app.callback(
     [
-        Output("btn_save", "style"),
+        Output("load_filename", "options"),
     ],
     [
         Input("btn_save", "n_clicks")
@@ -968,15 +1012,19 @@ def update_simulated_data(
         State("sigma_f", "value"),
         State("sigma_c", "value"),
         State("rvmean", "value"),
+        State("rvmean_cb", "value"),
         State("rvmean", "disabled"),
         State("retmean", "value"),
+        State("retmean_cb", "value"),
         State("retmean", "disabled"),
         State("start_params", "data"),
         State("pick_checkbox", "value"),
 
         State("simulated_data","data"),
         State("sens",   "children"),
+        State("Swipe_data",   "data"),
         State("div-graphs",   "children"),
+        State("dv",   "children"),
     ],
 )
 def btn_save(
@@ -986,7 +1034,7 @@ def btn_save(
     ss,
     periods,
     paths,
-    prob_type,
+    model_type,
     Phi,
     Chi,
     Eta,
@@ -997,30 +1045,127 @@ def btn_save(
     sigma_f,
     sigma_c,
     rvmean,
+    rvmean_cb,
     rvmean_disabled,
     retmean,
+    retmean_cb,
     retmean_disabled,
     start_params,
     pick_checkbox,
+
     sim_data,
     sens,
+    swipe_data,
     main,
+    dv,
 ):
     global globdata
+    args = locals().copy()
 
-    if n_clicks == 0 or n_clicks is None:
-        raise dash.exceptions.PreventUpdate()
+    fnames = [os.path.splitext(os.path.basename(p))[0]
+            for p in glob.glob('save/*.pickle')]
+    options = [
+            {'label': fname, 'value': fname}
+            for fname in fnames
+            ]
 
-    if filename is None:
-        raise dash.exceptions.PreventUpdate()
+    if n_clicks == 0 or n_clicks is None or filename is None:
+        return [options]
 
-    args = locals()
     args['globdata'] = globdata
     path = 'save/' + filename + '.pickle'
     with open(path, 'wb') as fd:
         pickle.dump(args, fd)
 
-    return [{ 'color': 'inherit', "display": "flex", "width": "95%", },]
+    return [options]
+
+
+@app.callback(
+    [
+        Output("Load_trigger", "data"),
+        Output("slider-ml", "value"),
+        Output("slider-ss", "value"),
+        Output("periods", "value"),
+        Output("paths", "value"),
+#        Output("model-type", "value"),
+#        Output("Phi",     "value"),
+#        Output("Chi",     "value"),
+#        Output("Eta",     "value"),
+#        Output("alpha_w", "value"),
+#        Output("alpha_o", "value"),
+#        Output("alpha_n", "value"),
+#        Output("alpha_p", "value"),
+#        Output("sigma_f", "value"),
+#        Output("sigma_c", "value"),
+#        Output("rvmean", "value"),
+        Output("rvmean_cb", "value"),
+#        Output("rvmean", "disabled"),
+#        Output("retmean", "value"),
+        Output("retmean_cb", "value"),
+#        Output("retmean", "disabled"),
+#        Output("start_params", "data"),
+        Output("pick_checkbox", "value"),
+
+#        Output("simulated_data","data"),
+#        Output("sens",   "children"),
+#        Output("Swipe_data","data"),
+#        Output("div-graphs",   "children"),
+    ],
+    [
+        Input("btn_load", "n_clicks")
+    ],
+    [
+        State("load_filename", "value"),
+    ],
+)
+def btn_load(n_clicks, filename,):
+    global globdata
+    global loaddata
+
+    if n_clicks == 0 or n_clicks is None:
+        raise dash.exceptions.PreventUpdate()
+    if filename is None:
+        raise dash.exceptions.PreventUpdate()
+
+    path = 'save/' + filename + '.pickle'
+    with open(path, 'rb') as fd:
+        args = pickle.load(fd)
+
+    loaddata = args.copy()
+    globdata = loaddata['globdata'].copy()
+    #print(args)
+
+    return [
+            [0],
+             args["ml"],
+             args["ss"],
+             args["periods"],
+             args["paths"],
+#             args["model-type"],
+#             args["Phi"],
+#             args["Chi"],
+#             args["Eta"],
+#             args["alpha_w"],
+#             args["alpha_o"],
+#             args["alpha_n"],
+#             args["alpha_p"],
+#             args["sigma_f"],
+#             args["sigma_c"],
+#             args["rvmean"],
+             args["rvmean_cb"],
+#             args["rvmean_disabled"],
+#             args["retmean"],
+             args["retmean_cb"],
+#             args["retmean_disabled"],
+#             args["start_params"],
+             args["pick_checkbox"],
+# 
+#             args["simulated_data"],
+#             args["sens"],
+#             args["swipe_data"],
+#             args["div-graphs"],
+
+            ]
 
 
 # Running the server

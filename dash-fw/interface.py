@@ -93,6 +93,32 @@ def card0():
                 "display": "flex",
                 },
             ),
+            html.Div([
+            dcc.Dropdown(
+                id="load_filename",
+                value = None,
+                clearable=False,
+                searchable=False,
+                style={
+                    'color': 'inherit',
+#                    "display": "flex",
+                    "width": "100%",
+                },
+                placeholder="File Name"
+                ),
+                html.Button(
+                    "Load",
+                    id="btn_load",
+                    style={
+                    'color': 'inherit',
+#                    "display": "flex",
+                    "width": "30%",
+                    },
+                    ),
+            ], style={
+                "display": "flex",
+                },
+            ),
             drc.ButtonInputButton('Random seed', 'Set seed',
                 'rnd_seed', 'set_seed',
                 id =  'seed_val', value = 0),
@@ -550,6 +576,7 @@ def div_panel():
                                 dcc.Store(id='visible_maxdd', data = None),
                                 dcc.Store(id='visible_random', data = None),
                                 dcc.Store(id='Swipe_data', data = None),
+                                dcc.Store(id='Load_trigger', data = None),
                         ],
                         #style={'width':'30%'},
                     ),
