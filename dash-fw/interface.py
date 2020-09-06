@@ -69,6 +69,30 @@ def card0():
     return drc.Card(
         id = 'select_card',
         children=[
+            html.Div([
+                dcc.Input(
+                    id="filename",
+                    type='text',
+                    style={
+                    'color': 'inherit',
+                    "display": "flex",
+                    "width": "95%",
+                    },
+                    placeholder="File Name"
+                    ),
+                html.Button(
+                    "Save",
+                    id="btn_save",
+                    style={
+                    'color': 'inherit',
+                    "display": "flex",
+                    "width": "95%",
+                    },
+                    ),
+            ], style={
+                "display": "flex",
+                },
+            ),
             drc.ButtonInputButton('Random seed', 'Set seed',
                 'rnd_seed', 'set_seed',
                 id =  'seed_val', value = 0),

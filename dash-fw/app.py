@@ -944,6 +944,84 @@ def update_simulated_data(
 
     return [ True ]
 
+@app.callback(
+    [
+        Output("btn_save", "style"),
+    ],
+    [
+        Input("btn_save", "n_clicks")
+    ],
+    [
+        State("filename", "value"),
+        State("slider-ml", "value"),
+        State("slider-ss", "value"),
+        State("periods", "value"),
+        State("paths", "value"),
+        State("model-type", "value"),
+        State("Phi",     "value"),
+        State("Chi",     "value"),
+        State("Eta",     "value"),
+        State("alpha_w", "value"),
+        State("alpha_o", "value"),
+        State("alpha_n", "value"),
+        State("alpha_p", "value"),
+        State("sigma_f", "value"),
+        State("sigma_c", "value"),
+        State("rvmean", "value"),
+        State("rvmean", "disabled"),
+        State("retmean", "value"),
+        State("retmean", "disabled"),
+        State("start_params", "data"),
+        State("pick_checkbox", "value"),
+
+        State("simulated_data","data"),
+        State("sens",   "children"),
+        State("div-graphs",   "children"),
+    ],
+)
+def btn_save(
+    n_clicks,
+    filename,
+    ml,
+    ss,
+    periods,
+    paths,
+    prob_type,
+    Phi,
+    Chi,
+    Eta,
+    alpha_w,
+    alpha_o,
+    alpha_n,
+    alpha_p,
+    sigma_f,
+    sigma_c,
+    rvmean,
+    rvmean_disabled,
+    retmean,
+    retmean_disabled,
+    start_params,
+    pick_checkbox,
+    sim_data,
+    sens,
+    main,
+):
+    global globdata
+
+    if n_clicks == 0 or n_clicks is None:
+        raise dash.exceptions.PreventUpdate()
+
+    if filename is None:
+        raise dash.exceptions.PreventUpdate()
+
+    args = locals()
+    args['globdata'] = globdata
+    path = 'save/' + filename + '.pickle'
+    with open(path, 'wb') as fd:
+        pickle.dump(args, fd)
+
+    return [{ 'color': 'inherit', "display": "flex", "width": "95%", },]
+
 
 # Running the server
 if __name__ == "__main__":
