@@ -226,10 +226,20 @@ def param_to_swipe(params, model_num, param):
         Input("model-select", "value"),
         Input("swipe-select", "value"),
         Input("cal_params", "data"),
+        Input("Load_trigger", "data"),
     ],
 )
 @timeit
-def set_swipes(model_num, swipe_select, fw_params,):
+def set_swipes(model_num, swipe_select, fw_params, Load_trigger,):
+    ctx = dash.callback_context
+
+    if ctx.triggered[0]['prop_id'] == 'Load_trigger.data':
+        return [
+                loaddata["swipe_start"],
+                loaddata["swipe_step"],
+                loaddata["swipe_stop"],
+                ]
+
     if swipe_select is None or fw_params is None or model_num is None:
         raise dash.exceptions.PreventUpdate()
 
@@ -1025,6 +1035,10 @@ def update_simulated_data(
         State("Swipe_data",   "data"),
         State("div-graphs",   "children"),
         State("dv",   "children"),
+
+        State("swipe_start",  "value"),
+        State("swipe_step",  "value"),
+        State("swipe_stop",  "value"),
     ],
 )
 def btn_save(
@@ -1058,6 +1072,10 @@ def btn_save(
     swipe_data,
     main,
     dv,
+
+    swipe_start,
+    swipe_step,
+    swipe_stop,
 ):
     global globdata
     args = locals().copy()
