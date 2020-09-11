@@ -319,7 +319,7 @@ def card2():
                         "placement": "top"},
                 value=1
                 ),
-            drc.CheckboxSlider("Fundamental price is mean", 'rvmean_cb', enabled = False,
+            drc.CheckboxSlider("Fundamental price window", 'rvmean_cb', enabled = False,
                 id = 'rvmean',
                 min = 1,
                 max = 365,
@@ -333,7 +333,7 @@ def card2():
                     },
                 value = 180,
                 ),
-            drc.CheckboxSlider("Effective return is mean", 'retmean_cb', enabled = False,
+            drc.CheckboxSlider("Effective return window", 'retmean_cb', enabled = False,
                 id = 'retmean',
                 min = 1,
                 max = 21,
@@ -516,6 +516,91 @@ def graph_tabs():
                                                            )
                                                        ),
                                                    ),
+                                               ]
+                                           )
+                                       ]
+                                   ),
+                               dcc.Tab(
+                                   label='Manual',
+                                   value = 'Manual',
+                                   style={'backgroundColor': "inherit"}, 
+                                   selected_style={'backgroundColor': "inherit",'color':'white'},
+                                   children = [
+                                       html.Div(
+                                           id="manual",
+                                           #style = {'display': 'inline-block'},
+                                           children = [
+                                               dcc.Markdown('''
+## User Manual
+
+### Model controls.
+#### Section 1. Basic settings
+
+This is the Exploration tool for the Franke-Westerhoff structural stochastic volatility model.
+Start working with the explorer by choosing appropriate **SEED**, or let the tool pick random
+value for you.
+
+7 models from the original paper are presented as presets. At the end of the first section,
+choose a model to simulate from the drop box. The models may be customized by user if needed.
+All parameters are editable by clicking **SHOW / HIDE** button. Original values of the parameters
+are preserved while experimenting.
+
+#### Section 2. Model arguments
+
+Use **Periods** and **Paths** input boxes to set length of simulation and number of individual
+trajectory paths accordingly.
+
+Market Liquidity and Switching Strength sliders set corresponding model parameters as appropriate.
+
+**Fundamental price window** and **Effective return window** are two extensions added to the model
+that allow to extend simulation flexibility.
+
+**Fundamental price window** is used to determine a time period for calculating the fundamental price.
+If disabled, the fundamental price is always **1**, while if the feature enabled, fundamental price
+is calculated as average price for last **N** periods, as set on slider control. This control affects
+the Fundamentalists behaviour. If at some specific simulation price deviates from **1** for a period of
+time comparable to the window, the price effectively becomes a new fundamental value.
+
+**Effective return window** affects the behaviour of chartist part of simulation. If disabled, chartists's
+prediction on market is based on last return. If the feature enabled, few last returns average used
+to calculate the 'effective return'. This feature may be used to simulate 'weekly chartists', for example.
+
+**Simulate** button starts the simulaton. No simulation traces will appear when simulation is complete.
+Use the following section controls to display results.
+
+**Pick Start** and **Start from picked point** are discussed in Model Display.
+
+#### Section 3. Display Results
+
+Displaying all simulated traces is computationally difficult problem and trashes output with numerous random
+lines. We structured output traces by properties, and marked them with individual colours. User can pick 
+traces with desired properties to display at will, together with the number of traces per option.
+
+The supported properties are:
+* Random: pick random traces;
+* Most volatile: pick N most volatile traces;
+* Least volatile: pick N least volatile traces;
+* Max drawdown: pick traces demonstrating maximal loss in price.
+
+The model outputs is displayed at the right part of the screen. It is also interactive and is discussed at
+the section **Model Display**
+
+
+#### Section 3. Saving Results
+
+There are 2 methods supported to save model outputs.
+
+**Screenshot** prints the result of simulation to an image file at user's file system.
+
+**Save/Load** buttons together with corresponding input and dropbox allow to save and restore the state
+of the dash at the server, and recover an interesting simulation later at convenience. 
+
+### Model Display.
+
+The program has interactive graphical representation of the model output. There are **Main Vieew** and 
+**Detailed View** tabs to explore the model.
+
+''')
                                                ]
                                            )
                                        ]
