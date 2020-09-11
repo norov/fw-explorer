@@ -69,6 +69,44 @@ def card0():
     return drc.Card(
         id = 'select_card',
         children=[
+            drc.ButtonInputButton('Random seed', 'Set seed',
+                'rnd_seed', 'set_seed',
+                id =  'seed_val', value = 0),
+            dcc.Dropdown(
+                id="model-select",
+                value = None,
+                clearable=False,
+                searchable=False,
+                ),
+            html.Div([
+                html.Button(
+                    "Show / Hide",
+                    id="btn-edit",
+                    style={
+                    'color': 'inherit',
+                    "display": "flex",
+                    "width": "95%",
+                    },
+                    ),
+                html.Button(
+                    "Delete",
+                    id="btn-delete",
+                    style={
+                    'color': 'inherit',
+                    "display": "flex",
+                    "width": "95%",
+                    },
+                    ), 
+            ], style={
+                "display": "flex",
+                },
+            ),
+            ]
+        )
+def card_save():
+    return drc.Card(
+        id = 'save_card',
+        children=[
             html.Div([
                 dcc.Input(
                     id="filename",
@@ -111,17 +149,14 @@ def card0():
                     id="btn_load",
                     style={
                     'color': 'inherit',
-#                    "display": "flex",
-                    "width": "30%",
+                    "display": "flex",
+                    #"width": "30%",
                     },
                     ),
             ], style={
                 "display": "flex",
                 },
             ),
-            drc.ButtonInputButton('Random seed', 'Set seed',
-                'rnd_seed', 'set_seed',
-                id =  'seed_val', value = 0),
             html.Button(
                 "Screenshot",
                 id="btn_export",
@@ -129,35 +164,6 @@ def card0():
                          'display': 'flex',
                          "width": "100%"},
                 ),
-            dcc.Dropdown(
-                id="model-select",
-                value = None,
-                clearable=False,
-                searchable=False,
-                ),
-            html.Div([
-                html.Button(
-                    "Show / Hide",
-                    id="btn-edit",
-                    style={
-                    'color': 'inherit',
-                    "display": "flex",
-                    "width": "95%",
-                    },
-                    ),
-                html.Button(
-                    "Delete",
-                    id="btn-delete",
-                    style={
-                    'color': 'inherit',
-                    "display": "flex",
-                    "width": "95%",
-                    },
-                    ), 
-            ], style={
-                "display": "flex",
-                },
-            ),
             ]
         )
 
@@ -521,7 +527,7 @@ def graph_tabs():
                                        ]
                                    ),
                                dcc.Tab(
-                                   label='Manual',
+                                   label='User Manual',
                                    value = 'Manual',
                                    style={'backgroundColor': "inherit"}, 
                                    selected_style={'backgroundColor': "inherit",'color':'white'},
@@ -627,7 +633,7 @@ The program has interactive graphical representation of the model output. There 
 def div_panel():
     return html.Div(
             id="body",
-            className="container scalable",
+            #className="container scalable",
             children=[
                 html.Div(
                     id="app-container",
@@ -652,6 +658,7 @@ def div_panel():
                                 card_swipe(),
                                 card2(),
                                 card3(),
+                                card_save(),
                                 dcc.Store(id='cal_params'),
 				dcc.Store(id='click_data'),
                                 dcc.Store(id='start_params'),
