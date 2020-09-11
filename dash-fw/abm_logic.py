@@ -15,12 +15,14 @@ def update_seed(seed):
     rand = np.random.rand(2, 1, 1)
 
 
-def mean_price(price, period, rvmean):
+def mean_price(price, pstar, period, rvmean):
     if period >= rvmean:
-        return np.mean(price[period - rvmean : period, :])
+        return np.mean(price[period - rvmean : period, :], axis = 0)
 
-    # Assuming starting price is 0
-    return np.mean(price[0 : period, :]) * period / rvmean
+    M = np.mean(price[0 : period, :], axis = 0) * period \
+            + pstar[period - 1, :] * (rvmean - period)
+
+    return M / rvmean
 
 
 def mean_ret(price, period, retmean):
@@ -126,7 +128,7 @@ def calculate_returns(params, start_params):
                 + mu * (Nf[t, :] * Df[t, :] + Nc[t, :] * Dc[t, :])
 
         if rvmean is not  None:
-            pstar[t, :] = mean_price(P, t, rvmean)
+            pstar[t, :] = mean_price(P, pstar, t, rvmean)
 
         if retmean is not  None:
             cstar[t, :] = mean_ret(P, t, retmean)

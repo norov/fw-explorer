@@ -13,6 +13,8 @@ import random
 # Generate 3 graphs based on dict returned by generate constraints:
 # Prices paths, Returns, Chartists share
 def generate_graph_prod(ret, rnd, tv, lv, maxdd):
+    pstar = np.mean(ret['pstar'], axis = 1)
+    pstar_std = np.std(ret['pstar'], axis = 1)
     
     # Extract dict
     simple_R = np.array(ret["exog_signal"])
@@ -71,6 +73,26 @@ def generate_graph_prod(ret, rnd, tv, lv, maxdd):
                                      marker=dict(color=color),line=dict(width=0.7),
                                      showlegend=False),row=5, col=1)
 
+    
+    fig.add_trace(go.Scattergl(x = x, y = np.exp(pstar), mode = 'lines',
+                                name = 'PSTAR', legendgroup = 'PSTAR',
+                                marker = dict(color = 'rgb(255,255,255)'),
+                                line = dict(width = 2)),
+                    row=1, col=1)
+
+    fig.add_trace(go.Scattergl(
+                   name = 'PSTAR conf_int',
+                   x = list(x) + list(x)[::-1],
+                   y = list(np.exp(pstar - pstar_std)) + list(np.exp(pstar + pstar_std))[::-1],
+                   fill = 'toself',
+                   fillcolor = 'rgb(255,255,255)',
+                   line = dict(color='rgba(255,255,255, 0)'),
+                   opacity = 0.5,
+                   hoverinfo="skip",
+                   showlegend=False
+                   ),
+                    row=1, col=1)
+
     if rnd is not None:
         add_traces(fig, rnd, 'rgba(255,255,255,0.3)')
 
@@ -79,7 +101,6 @@ def generate_graph_prod(ret, rnd, tv, lv, maxdd):
 
     if lv is not None:
         add_traces(fig, lv, 'rgba(0,255,0,0.8)')
-
 
     if maxdd is not None:
         add_traces(fig, maxdd, 'rgba(0,0,255,0.8)')
