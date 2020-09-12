@@ -1006,6 +1006,9 @@ def update_simulated_data(
         State("swipe_start",  "value"),
         State("swipe_step",  "value"),
         State("swipe_stop",  "value"),
+        
+        State("comments_txt",  "value"),
+        
     ],
 )
 def btn_save(
@@ -1043,6 +1046,8 @@ def btn_save(
     swipe_start,
     swipe_step,
     swipe_stop,
+    
+    comments_txt,
 ):
     global globdata
     args = locals().copy()
@@ -1095,6 +1100,8 @@ def btn_save(
 #        Output("sens",   "children"),
 #        Output("Swipe_data","data"),
 #        Output("div-graphs",   "children"),
+        
+        Output("comments_txt",  "value"),
     ],
     [
         Input("btn_load", "n_clicks")
@@ -1149,6 +1156,8 @@ def btn_load(n_clicks, filename,):
 #             args["sens"],
 #             args["swipe_data"],
 #             args["div-graphs"],
+             
+             args["comments_txt"],
 
             ]
 

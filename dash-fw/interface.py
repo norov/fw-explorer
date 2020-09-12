@@ -527,6 +527,33 @@ def graph_tabs():
                                        ]
                                    ),
                                dcc.Tab(
+                                   label='User Comments',
+                                   value = 'Comment',
+                                   style={'backgroundColor': "inherit"}, 
+                                   selected_style={'backgroundColor': "inherit",'color':'white'},
+                                   children = [
+                                       html.Div(
+                                           id="comments_title",
+                                           #style = {'display': 'inline-block'},
+                                           children = [
+                                               dcc.Markdown(''' ## User Comments '''),
+                                               ]
+                                           ),
+                                       html.Div(
+                                           #id="comments_txt",
+                                           #style = {'display': 'inline-block'},
+                                           children = [
+                                               dcc.Textarea(id="comments_txt", 
+                                                            style={'width': 1500, 
+                                                                   'height':600, 
+                                                                   'font-size': 18,
+                                                                   'color':'white'}),
+                                               ],
+                                           style=dict(display='flex')
+                                           )
+                                       ]
+                                   ),
+                               dcc.Tab(
                                    label='User Manual',
                                    value = 'Manual',
                                    style={'backgroundColor': "inherit"}, 
