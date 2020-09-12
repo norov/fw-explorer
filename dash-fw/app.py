@@ -182,7 +182,6 @@ def param_to_swipe(params, model_num, param):
 @timeit
 def set_swipes(model_num, swipe_select, fw_params, Load_trigger,):
     ctx = dash.callback_context
-
     if ctx.triggered[0]['prop_id'] == 'Load_trigger.data':
         return [
                 loaddata["swipe_start"],
@@ -968,9 +967,12 @@ def update_simulated_data(
         State("div-graphs",   "children"),
         State("dv",   "children"),
 
+        State("swipe-type",  "value"),
         State("swipe_start",  "value"),
         State("swipe_step",  "value"),
         State("swipe_stop",  "value"),
+        State("start_period",  "value"),
+        State("stop_period",  "value"),
         
         State("comments_txt",  "value"),
         
@@ -1008,9 +1010,12 @@ def btn_save(
     main,
     dv,
 
+    swipe_type,
     swipe_start,
     swipe_step,
     swipe_stop,
+    start_period,
+    stop_period,
     
     comments_txt,
 ):
@@ -1061,6 +1066,9 @@ def btn_save(
 #        Output("sens",   "children"),
 #        Output("Swipe_data","data"),
 #        Output("div-graphs",   "children"),
+        Output("swipe-type",  "value"),
+        Output("start_period",  "value"),
+        Output("stop_period",  "value"),
         
         Output("comments_txt",  "value"),
     ],
@@ -1117,6 +1125,9 @@ def btn_load(n_clicks, filename,):
 #             args["sens"],
 #             args["swipe_data"],
 #             args["div-graphs"],
+            args["swipe_type"],
+            args["start_period"],
+            args["stop_period"],
              
              args["comments_txt"],
 
