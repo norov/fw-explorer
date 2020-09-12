@@ -967,6 +967,7 @@ def update_simulated_data(
         State("div-graphs",   "children"),
         State("dv",   "children"),
 
+        State("swipe-select",  "value"),
         State("swipe-type",  "value"),
         State("swipe_start",  "value"),
         State("swipe_step",  "value"),
@@ -1010,6 +1011,7 @@ def btn_save(
     main,
     dv,
 
+    swipe_select,
     swipe_type,
     swipe_start,
     swipe_step,
@@ -1066,6 +1068,7 @@ def btn_save(
 #        Output("sens",   "children"),
 #        Output("Swipe_data","data"),
 #        Output("div-graphs",   "children"),
+        Output("swipe-select",  "value"),
         Output("swipe-type",  "value"),
         Output("start_period",  "value"),
         Output("stop_period",  "value"),
@@ -1125,6 +1128,7 @@ def btn_load(n_clicks, filename,):
 #             args["sens"],
 #             args["swipe_data"],
 #             args["div-graphs"],
+            args["swipe_select"],
             args["swipe_type"],
             args["start_period"],
             args["stop_period"],
