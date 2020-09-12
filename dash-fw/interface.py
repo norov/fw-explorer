@@ -157,13 +157,6 @@ def card_save():
                 "display": "flex",
                 },
             ),
-            html.Button(
-                "Screenshot",
-                id="btn_export",
-                style = {'color': 'inherit',
-                         'display': 'flex',
-                         "width": "100%"},
-                ),
             ]
         )
 
@@ -620,10 +613,6 @@ the section **Model Display**
 
 
 #### Section 3. Saving Results
-
-There are 2 methods supported to save model outputs.
-
-**Screenshot** prints the result of simulation to an image file at user's file system.
 
 **Save/Load** buttons together with corresponding input and dropbox allow to save and restore the state
 of the dash at the server, and recover an interesting simulation later at convenience. 
