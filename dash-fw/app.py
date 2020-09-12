@@ -1052,20 +1052,16 @@ def btn_save(
     global globdata
     args = locals().copy()
 
+    if not (n_clicks == 0 or n_clicks is None or filename is None):
+        args['globdata'] = globdata
+        path = 'save/' + filename + '.pickle'
+        with open(path, 'wb') as fd:
+            pickle.dump(args, fd)
+
     fnames = [os.path.splitext(os.path.basename(p))[0]
             for p in glob.glob('save/*.pickle')]
-    options = [
-            {'label': fname, 'value': fname}
-            for fname in fnames
-            ]
 
-    if n_clicks == 0 or n_clicks is None or filename is None:
-        return [options]
-
-    args['globdata'] = globdata
-    path = 'save/' + filename + '.pickle'
-    with open(path, 'wb') as fd:
-        pickle.dump(args, fd)
+    options = [ {'label': fname, 'value': fname} for fname in sorted(fnames) ]
 
     return [options]
 
