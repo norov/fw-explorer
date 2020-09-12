@@ -9,12 +9,6 @@ import time
 
 rand = np.random.rand(2, 1, 1)
 
-def update_seed(seed):
-    global rand
-    np.random.seed(seed)
-    rand = np.random.rand(2, 1, 1)
-
-
 def mean_price(price, pstar, period, rvmean):
     if period >= rvmean:
         return np.mean(price[period - rvmean : period, :], axis = 0)
@@ -33,7 +27,8 @@ def mean_ret(price, period, retmean):
 
 
 def calculate_returns(params, start_params):
-    global rand
+    np.random.seed(params['seed_val'])
+
     rvmean = params["rvmean"]
     retmean = params["retmean"]
     nr = params["num_runs"]
@@ -52,15 +47,7 @@ def calculate_returns(params, start_params):
     sigma_f = params["sigma_f"]
     sigma_c = params["sigma_c"]
 
-    nagents, rand_nr, rand_sim_L = rand.shape
-    if rand_nr < nr:
-        r = norm.rvs(loc = 0, scale = 1, size=(2, nr - rand_nr, rand_sim_L))
-        rand = np.append(rand, r, axis = 1)
-
-    nagents, rand_nr, rand_sim_L = rand.shape
-    if rand_sim_L < sim_L:
-        r = norm.rvs(loc = 0, scale = 1, size=(2, rand_nr, sim_L - rand_sim_L))
-        rand = np.append(rand, r, axis = 2)
+    rand = norm.rvs(loc = 0, scale = 1, size=(2, nr, sim_L))
 
     Df = np.zeros([sim_L, nr])  ##diagnostic state
     Dc = np.zeros([sim_L, nr])  ##diagnostic state

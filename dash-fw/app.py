@@ -73,35 +73,18 @@ app.layout = html.Div(
     ],
     [
         Input("rnd_seed", "n_clicks"),
+        Input("Load_trigger", "data"),
     ],
 )
-def random_seed(n_clicks):
+def random_seed(n_clicks, Load_trigger):
+    ctx = dash.callback_context
+    if ctx.triggered[0]['prop_id'] == 'Load_trigger.data' and bool(Load_trigger):
+        return [ loaddata['seed_val' ]]
+
     if n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
     return [ np.random.randint(65536) ]
-
-
-@app.callback(
-    [
-        Output("set_seed", "disabled"),
-    ],
-    [
-        Input("set_seed", "n_clicks"),
-    ],
-    [
-        State("seed_val", "value"),
-    ],
-)
-def set_seed(n_clicks, seed_val):
-    #print('set_seed', n_clicks)
-    if n_clicks is None:
-        raise dash.exceptions.PreventUpdate()
-
-    #print('set_seed', seed_val)
-    update_seed(seed_val)
-
-    return [ False ]
 
 
 @app.callback(
@@ -319,6 +302,7 @@ def set_visible(value):
     ],
     [
         State("swipe-type", "value"),
+        State("seed_val", "value"),
 
         # Model parameters
         State("slider-ml", "value"),
@@ -357,6 +341,7 @@ def set_visible(value):
 @timeit
 def do_swipe(n_clicks, load_trigger,
              swipe_type,
+             seed_val,
              ml,
              ss,
              periods,
@@ -394,7 +379,7 @@ def do_swipe(n_clicks, load_trigger,
         raise dash.exceptions.PreventUpdate()
 
     swipe_range = np.append(np.arange(swipe_start, swipe_stop, swipe_step), swipe_stop)
-    params = make_params(ml, ss, periods, paths, prob_type,
+    params = make_params(seed_val, ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o, alpha_n,
                     alpha_p, sigma_f, sigma_c,
 		    rvmean, rvmean_disabled,
@@ -819,7 +804,7 @@ def update_graph(data, rnd, topvol, lessvol, maxdd, Load_trigger):
                 ),
             ]
 
-def make_params(ml, ss, periods, paths, prob_type,
+def make_params(seed, ml, ss, periods, paths, prob_type,
                 Phi, Chi, Eta, alpha_w, alpha_o,
                 alpha_n, alpha_p, sigma_f, sigma_c,
                 rvmean, rvmean_disabled,
@@ -827,6 +812,7 @@ def make_params(ml, ss, periods, paths, prob_type,
                 ):
 
     params = {
+            "seed_val": seed,
             "phi": Phi,  ##AK: demand senstivity of the fundamental agents to price deviations.
             "chi": Chi,  ##AK: demand senstivity of the chartest agents to price deviations.
             "eta": Eta,  ##AK: performance memory (backward looking ewma)
@@ -864,6 +850,7 @@ def make_params(ml, ss, periods, paths, prob_type,
         Input("btn-simulate", "n_clicks")
     ],
     [
+        State("seed_val", "value"),
         State("slider-ml", "value"),
         State("slider-ss", "value"),
         State("periods", "value"),
@@ -889,6 +876,7 @@ def make_params(ml, ss, periods, paths, prob_type,
 @timeit
 def update_simulated_data(
     n_clicks,
+    seed_val,
     ml,
     ss,
     periods,
@@ -915,7 +903,7 @@ def update_simulated_data(
     if n_clicks == 0 or n_clicks is None:
         raise dash.exceptions.PreventUpdate()
 
-    params = make_params(ml, ss, periods, paths, prob_type,
+    params = make_params(seed_val, ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o,
                     alpha_n, alpha_p, sigma_f, sigma_c,
                     rvmean, rvmean_disabled,
@@ -938,6 +926,7 @@ def update_simulated_data(
     ],
     [
         State("filename", "value"),
+        State("seed_val", "value"),
         State("slider-ml", "value"),
         State("slider-ss", "value"),
         State("periods", "value"),
@@ -981,7 +970,9 @@ def update_simulated_data(
 )
 def btn_save(
     n_clicks,
+
     filename,
+    seed_val,
     ml,
     ss,
     periods,
@@ -1085,6 +1076,9 @@ def btn_save(
 def btn_load(n_clicks, filename,):
     global globdata
     global loaddata
+
+    ctx = dash.callback_context
+    print(ctx.triggered[0]['prop_id'])
 
     if n_clicks == 0 or n_clicks is None:
         raise dash.exceptions.PreventUpdate()

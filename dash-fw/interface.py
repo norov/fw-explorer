@@ -69,8 +69,7 @@ def card0():
     return drc.Card(
         id = 'select_card',
         children=[
-            drc.ButtonInputButton('Random seed', 'Set seed',
-                'rnd_seed', 'set_seed',
+            drc.ButtonInput('Random seed', 'rnd_seed',
                 id =  'seed_val', value = 0),
             dcc.Dropdown(
                 id="model-select",
