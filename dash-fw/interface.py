@@ -259,7 +259,7 @@ def card_swipe():
                     drc.NInput('Start Period', id = 'start_period', value = 2,
                         type = 'number', style = istyle,),
 
-                    drc.NInput('Stop Period', id = 'stop_period', value = None,
+                    drc.NInput('Stop Period', id = 'stop_period', value = 500,
                         type = 'number', style = istyle,),
 
                     ]

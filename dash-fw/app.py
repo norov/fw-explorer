@@ -106,21 +106,6 @@ def set_seed(n_clicks, seed_val):
 
 @app.callback(
     [
-        Output("stop_period", "value"),
-    ],
-    [
-        Input("swipe-type", "value"),
-    ],
-    [
-        State("periods", "value"),
-    ]
-)
-@timeit
-def show_return_params(swipe_type, paths):
-    return [paths]
-
-@app.callback(
-    [
         Output("model-select",     "options"),
         Output("model-select",     "value"),
     ],
