@@ -27,7 +27,7 @@ import os
 import base64
 import io
 
-from dashboard_integration import calculate_returns, init_parameters
+from dashboard_integration import sz_calculate_returns, sz_init_parameters
 
 globdata = {}
 loaddata = {}
@@ -906,8 +906,8 @@ def update_simulated_data(
 
 
     if prob_type == 'Shu-Zhu':
-        g, c =  init_parameters()
-        ret = calculate_returns(g, c)
+        g, c =  sz_init_parameters()
+        ret = sz_calculate_returns(g, c, paths, periods, burnout = 0)
         globdata = ret.copy()
         return [ True ]
 

@@ -4,7 +4,7 @@ Integrate the model return simulation with the dashboard team
 
 import numpy as np
 
-def init_parameters():
+def sz_init_parameters():
     """
     Parameter initialization for the model
     Returns:
@@ -46,7 +46,7 @@ def noise_generator(p_j, sigma_j, sigma_n):
            (np.random.uniform(size=1) < p_j) * np.random.randn(1) * sigma_j
 
 
-def calculate_returns(given_params, calibrated_params, num_runs=1, sim_L=5000, seed=None, burnout=100):
+def sz_calculate_returns(given_params, calibrated_params, num_runs=100, sim_L=500, seed=None, burnout=100):
     """
     Calculation of model simulated return in Python
     """
@@ -148,7 +148,22 @@ def calculate_returns(given_params, calibrated_params, num_runs=1, sim_L=5000, s
     model_vol = model_vol[:, burnout:].T
     pstars = pstars[:, burnout:].T
     cstars = cstars[:, burnout:].T
-    return R, Nc, model_vol, P, Nc, Nf, A, Dc, Df, Wc, Wf, pstars, cstars
+    output = {"H": None,
+              "exog_signal": R,
+              "prices"   : np.exp(P),
+              "model_vol": model_vol,
+	      'P'        : P,
+	      'A'        : A,
+	      'Nc'       : Nc,
+	      'Nf'       : Nf,
+	      'Df'       : Df,
+	      'Dc'       : Dc,
+	      'Wf'       : Wf,
+	      'Wc'       : Wc,
+	      'pstar'    : pstars,
+	      'cstar'    : cstars,
+             }
+    return output
 
 
 if __name__ == '__main__':
