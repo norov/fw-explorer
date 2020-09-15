@@ -27,6 +27,7 @@ import os
 import base64
 import io
 
+from dashboard_integration import calculate_returns, init_parameters
 
 globdata = {}
 loaddata = {}
@@ -470,7 +471,8 @@ def do_swipe(n_clicks, load_trigger,
 def set_options(fw_params):
     return [
             {'label': 'DCA', 'value': 'DCA'},
-            {'label': 'TPA', 'value': 'TPA'}
+            {'label': 'TPA', 'value': 'TPA'},
+            {'label': 'Shu-Zhu', 'value': 'Shu-Zhu'},
            ]
 
 
@@ -810,7 +812,6 @@ def make_params(seed, ml, ss, periods, paths, prob_type,
                 rvmean, rvmean_disabled,
 		retmean, retmean_disabled, fillna = True
                 ):
-
     params = {
             "seed_val": seed,
             "phi": Phi,  ##AK: demand senstivity of the fundamental agents to price deviations.
@@ -902,6 +903,13 @@ def update_simulated_data(
 
     if n_clicks == 0 or n_clicks is None:
         raise dash.exceptions.PreventUpdate()
+
+
+    if prob_type == 'Shu-Zhu':
+        g, c =  init_parameters()
+        ret = calculate_returns(g, c)
+        globdata = ret.copy()
+        return [ True ]
 
     params = make_params(seed_val, ml, ss, periods, paths, prob_type,
                     Phi, Chi, Eta, alpha_w, alpha_o,
