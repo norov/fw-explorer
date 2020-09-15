@@ -406,7 +406,13 @@ def do_swipe(n_clicks, load_trigger,
         if pick_checkbox == []:
             start_params = None
 
-        out = generate_constraint(params, start_params)
+        if prob_type == 'Shu-Zhu':
+            g, c =  sz_init_parameters(Phi, Chi, alpha_o, alpha_p, sigma_f, sigma_c)
+            c[swipe_select] = param
+            out = sz_calculate_returns(g, c, paths, periods, seed_val, burnout = 0)
+        else:
+            out = generate_constraint(params, start_params)
+
         p, v, c, sk, kur = model_stat(swipe_type, out, returns_start, returns_stop)
         sw_mean.append(p)
         sw_vol.append(v)
