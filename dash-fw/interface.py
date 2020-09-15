@@ -188,6 +188,11 @@ def card1():
                 ["alpha_p", "sigma_f", "sigma_c"],
                 [None, None, None],
                 ),
+            div_input_line(
+                ["chi1", "nu", "sigma_n"],
+                ["chi1", "nu", "sigma_n"],
+                [None, None, None],
+                ),
             ]
         )
 
@@ -210,6 +215,9 @@ def card_swipe():
                         {'label': 'alpha_p', 'value': 'alpha_p'},
                         {'label': 'sigma_f', 'value': 'sigma_f'},
                         {'label': 'sigma_c', 'value': 'sigma_c'},
+                        {'label': 'sigma_n', 'value': 'sigma_n'},
+                        {'label': 'nu',      'value': 'nu'},
+                        {'label': 'chi1', 'value': 'chi1'},
                         ],
                  id="swipe-select",
                  value = 'phi',

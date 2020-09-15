@@ -110,40 +110,49 @@ def populate_params(fw_params):
 
 def param_to_swipe(params, model_num, param):
     if param == 'phi':
-        start = params.iloc[model_num][11]
-        stop = params.iloc[model_num][12]
+        start = params.iloc[model_num]['Phi_start']
+        stop = params.iloc[model_num]['Phi_stop']
 
     elif param == 'chi':
-        start = params.iloc[model_num][13]
-        stop = params.iloc[model_num][14]
+        start = params.iloc[model_num]['Chi_start']
+        stop = params.iloc[model_num]['Chi_stop']
 
     elif param == 'eta':
-        start = params.iloc[model_num][15]
-        stop = params.iloc[model_num][16]
+        start = params.iloc[model_num]['Eta_start']
+        stop = params.iloc[model_num]['Eta_stop']
 
     elif param == 'alpha_w':
-        start = params.iloc[model_num][17]
-        stop = params.iloc[model_num][18]
+        start = params.iloc[model_num]['aw_start']
+        stop = params.iloc[model_num]['aw_stop']
 
     elif param == 'alpha_O':
-        start = params.iloc[model_num][19]
-        stop = params.iloc[model_num][20]
+        start = params.iloc[model_num]['a0_start']
+        stop = params.iloc[model_num]['a0_stop']
 
     elif param == 'alpha_n':
-        start = params.iloc[model_num][21]
-        stop = params.iloc[model_num][22]
+        start = params.iloc[model_num]['an_start']
+        stop = params.iloc[model_num]['an_stop']
 
     elif param == 'alpha_p':
-        start = params.iloc[model_num][23]
-        stop = params.iloc[model_num][24]
+        start = params.iloc[model_num]['ap_start']
+        stop = params.iloc[model_num]['ap_stop']
 
     elif param == 'sigma_f':
-        start = params.iloc[model_num][25]
-        stop = params.iloc[model_num][26]
+        start = params.iloc[model_num]['sf_start']
+        stop = params.iloc[model_num]['sf_stop']
 
     elif param == 'sigma_c':
-        start = params.iloc[model_num][27]
-        stop = params.iloc[model_num][28]
+        start = params.iloc[model_num]['sc_start']
+        stop = params.iloc[model_num]['sc_stop']
+    elif param == 'chi1':
+        start = params.iloc[model_num]['chi1_start']
+        stop = params.iloc[model_num]['chi1_stop']
+    elif param == 'nu':
+        start = params.iloc[model_num]['nu_start']
+        stop = params.iloc[model_num]['nu_stop']
+    elif param == 'sigma_n':
+        start = params.iloc[model_num]['sn_start']
+        stop = params.iloc[model_num]['sn_stop']
     else:
         print('Unknown parameter:', param)
 
@@ -207,6 +216,9 @@ def show_swipes(tab):
         Output("alpha_p", "value"),
         Output("sigma_f", "value"),
         Output("sigma_c", "value"),
+        Output("chi1",    "value"),
+        Output("nu",      "value"),
+        Output("sigma_n", "value"),
     ],
     [
         Input("model-select","value"),
@@ -232,6 +244,9 @@ def set_params(model_num, Load_trigger, fw_params):
                 loaddata["alpha_p"],
                 loaddata["sigma_f"],
                 loaddata["sigma_c"],
+                None,
+                None,
+                None,
                 ]
 
     if fw_params is None:
@@ -246,7 +261,7 @@ def set_params(model_num, Load_trigger, fw_params):
     for v in vals.values[2:]:
         ret.append(np.float64(v))
 
-    return ret[:10]
+    return ret[:13]
 
 @app.callback(Output('rvmean', 'disabled'),
               [Input('rvmean_cb', 'value')],
