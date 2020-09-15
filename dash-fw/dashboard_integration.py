@@ -4,7 +4,7 @@ Integrate the model return simulation with the dashboard team
 
 import numpy as np
 
-def sz_init_parameters():
+def sz_init_parameters(phi, chi, alpha_o, alpha_p, sigma_f, sigma_c):
     """
     Parameter initialization for the model
     Returns:
@@ -24,14 +24,14 @@ def sz_init_parameters():
     }
     calibrated_params = {
         "nu": 0.1,  ## transition coefficient
-        "phi": 1.2662585762718377,  ## demand sensitivity of the fundamental agents to price deviations.
-        "chi": 1.1704990853964858,  ## demand sensitivity of the chartist agents to price deviations.
+        "phi": phi,  ## demand sensitivity of the fundamental agents to price deviations.
+        "chi": chi,  ## demand sensitivity of the chartist agents to price deviations.
         "chi1": 5.242566077501879,  ## demand sensitivity of the chartist agents to price deviations.
-        "alpha_o": -1.4292499690966622,  ## a basic predisposition toward the fundamental strategy
-        "alpha_p": 9.961520185901511,  # # misalignment; version to a fundamental strategy when price becomes too far
+        "alpha_o": alpha_o,  ## a basic predisposition toward the fundamental strategy
+        "alpha_p": alpha_p,  # # misalignment; version to a fundamental strategy when price becomes too far
         # from fundamental
-        "sigma_f": 0.20001759086829005,  ## noise in the fundamental agent demand
-        "sigma_c": 5.94842972483428,  ## noise in the chartist agent demand
+        "sigma_f": sigma_f,  ## noise in the fundamental agent demand
+        "sigma_c": sigma_c,  ## noise in the chartist agent demand
         "sigma_n": 0.012486955824132978,  ## noise in the noise agent demand
     }
     return given_params, calibrated_params

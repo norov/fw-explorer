@@ -906,8 +906,8 @@ def update_simulated_data(
 
 
     if prob_type == 'Shu-Zhu':
-        g, c =  sz_init_parameters()
-        ret = sz_calculate_returns(g, c, paths, periods, burnout = 0)
+        g, c =  sz_init_parameters(Phi, Chi, alpha_o, alpha_p, sigma_f, sigma_c)
+        ret = sz_calculate_returns(g, c, paths, periods, seed_val, burnout = 0)
         globdata = ret.copy()
         return [ True ]
 
