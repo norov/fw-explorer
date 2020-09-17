@@ -1093,7 +1093,8 @@ def btn_save(
         Output("start_period",  "value"),
         Output("stop_period",  "value"),
         
-        Output("comments_txt",  "value"),
+        #Output("comments_txt",  "value"),
+        #Output("comments_txt2",  "value"),
     ],
     [
         Input("btn_load", "n_clicks")
@@ -1156,10 +1157,41 @@ def btn_load(n_clicks, filename,):
             args["start_period"],
             args["stop_period"],
              
-             args["comments_txt"],
+             #args["comments_txt"],
 
             ]
 
+
+
+@app.callback(
+    [
+        Output("comments_txt",  "value"),
+    ],
+    [
+        Input("load_filename", "value")
+    ],
+)
+def select_model(filename,):
+    global globdata
+    global loaddata
+
+    ctx = dash.callback_context
+    print(ctx.triggered[0]['prop_id'])
+
+    if filename is None:
+        raise dash.exceptions.PreventUpdate()
+
+    path = 'save/' + filename + '.pickle'
+    with open(path, 'rb') as fd:
+        args = pickle.load(fd)
+
+    loaddata = args.copy()
+    globdata = loaddata['globdata'].copy()
+    #print(args)
+
+    return [            
+             args["comments_txt"]
+            ]
 
 # Running the server
 if __name__ == "__main__":

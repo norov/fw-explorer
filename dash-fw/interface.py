@@ -102,62 +102,7 @@ def card0():
             ),
             ]
         )
-def card_save():
-    return drc.Card(
-        id = 'save_card',
-        children=[
-            html.Div([
-                dcc.Input(
-                    id="filename",
-                    type='text',
-                    style={
-                    'color': 'inherit',
-                    "display": "flex",
-                    "width": "95%",
-                    },
-                    placeholder="File Name"
-                    ),
-                html.Button(
-                    "Save",
-                    id="btn_save",
-                    style={
-                    'color': 'inherit',
-                    "display": "flex",
-                    "width": "95%",
-                    },
-                    ),
-            ], style={
-                "display": "flex",
-                },
-            ),
-            html.Div([
-            dcc.Dropdown(
-                id="load_filename",
-                value = None,
-                clearable=False,
-                searchable=False,
-                style={
-                    'color': 'inherit',
-#                    "display": "flex",
-                    "width": "100%",
-                },
-                placeholder="File Name"
-                ),
-                html.Button(
-                    "Load",
-                    id="btn_load",
-                    style={
-                    'color': 'inherit',
-                    "display": "flex",
-                    #"width": "30%",
-                    },
-                    ),
-            ], style={
-                "display": "flex",
-                },
-            ),
-            ]
-        )
+
 
 def card1():
     return drc.Card(
@@ -409,49 +354,94 @@ def graph_tabs():
                                  "background": "grey"
                                  },
                          children=[
-                        #      dcc.Tab(
-                        #          label='Calibration 1',
-                        #          style={'backgroundColor': "inherit"},
-                        #          selected_style={'backgroundColor': "inherit",'color':'white'},
-                        #          value = 'ABM1',
-                        #          children = [
-                        #              html.P("ABM1: calibration process here")
-                        #              ]
-                        #         ),
+
                              dcc.Tab(
-                                 label='Calibration 2',
+                                 label='Save/Load',
                                  style={'backgroundColor': "inherit"},
                                  selected_style={'backgroundColor': "inherit",'color':'white'},
                                  value = 'ABM1',
                                  children = [
                                      html.Div(
-                                         id = 'abm2_params',
-                                         children = [
-                                         dcc.Dropdown(
-                                            options = [
-                                                    {'label': 'S&p 500', 'value': '^GSPC'},
-                                                    {'label': 'Dow Jones', 'value': '^DJ'},
-                                                    {'label': 'Russian Rubble', 'value': 'USDRUB'},
-                                                    {'label': 'Louis d\'or', 'value': 'USDLDR'},
-                                                    ],
-                                             id="ticker-select",
-                                             value = '^GSPC',
-                                             clearable=False,
-                                             searchable=False,
-                                             style={
-                                                 'display': 'block',
-                                                 },
-                                             ),
-                                         dcc.DatePickerRange(
-                                             id='my-date-picker-range',
-                                             start_date=dt.today() - relativedelta(years=5),
-                                             end_date=dt.today(),
-                                             ),
-                                         ],
-                                         style={
-                                             'display': 'inline-block',
-                                             },
-                                         )
+                                           id="saved_title1",
+                                           children = [
+                                               dcc.Markdown(''' ### Save Model '''),
+                                               ]
+                                           ),
+                                     html.Div([
+                                        dcc.Input(
+                                            id="filename",
+                                            type='text',
+                                            style={
+                                            'color': 'inherit',
+                                            "display": "flex",
+                                            "width": "100%",
+                                            },
+                                            placeholder="File Name"
+                                            ),
+                                        html.Button(
+                                            "Save",
+                                            id="btn_save",
+                                            style={
+                                            'color': 'inherit',
+                                            "display": "flex",
+                                            "width": "30%",
+                                            },
+                                            ),
+                                        ], style={
+                                        "display": "flex",
+                                        },
+                                    ),
+                                    html.Div(
+                                        id="saved_title2",
+                                        children = [
+                                            dcc.Markdown(''' ### Load Model '''),
+                                            ]
+                                     ),
+                                     html.Div([
+                                        dcc.Dropdown(
+                                            id="load_filename",
+                                            value = None,
+                                            clearable=False,
+                                            searchable=False,
+                                            style={
+                                                'color': 'inherit',
+                            #                    "display": "flex",
+                                                "width": "100%",
+                                            },
+                                            placeholder="File Name"
+                                            ),
+                                            html.Button(
+                                                "Load",
+                                                id="btn_load",
+                                                style={
+                                                'color': 'inherit',
+                                                "display": "flex",
+                                                "width": "30%",
+                                                },
+                                                ),
+                                        ], style={
+                                            "display": "flex",
+                                            },
+                                        ),
+                                        html.Div(
+                                           id="saved_comment",
+                                           #style = {'display': 'inline-block'},
+                                           children = [
+                                               dcc.Markdown(''' ### Comments '''),
+                                               ]
+                                           ),
+                                        html.Div(
+                                           #id="comments_txt",
+                                           #style = {'display': 'inline-block'},
+                                           children = [
+                                               dcc.Textarea(id="comments_txt", 
+                                                            style={'width': 1500, 
+                                                                   'height':420, 
+                                                                   'font-size': 18,
+                                                                   'color':'white'}),
+                                               ],
+                                           style=dict(display='flex')
+                                           )
                                      ],
                                 ),
                              dcc.Tab(
@@ -526,33 +516,7 @@ def graph_tabs():
                                            )
                                        ]
                                    ),
-                               dcc.Tab(
-                                   label='User Comments',
-                                   value = 'Comment',
-                                   style={'backgroundColor': "inherit"}, 
-                                   selected_style={'backgroundColor': "inherit",'color':'white'},
-                                   children = [
-                                       html.Div(
-                                           id="comments_title",
-                                           #style = {'display': 'inline-block'},
-                                           children = [
-                                               dcc.Markdown(''' ## User Comments '''),
-                                               ]
-                                           ),
-                                       html.Div(
-                                           #id="comments_txt",
-                                           #style = {'display': 'inline-block'},
-                                           children = [
-                                               dcc.Textarea(id="comments_txt", 
-                                                            style={'width': 1500, 
-                                                                   'height':600, 
-                                                                   'font-size': 18,
-                                                                   'color':'white'}),
-                                               ],
-                                           style=dict(display='flex')
-                                           )
-                                       ]
-                                   ),
+
                                dcc.Tab(
                                    label='User Manual',
                                    value = 'Manual',
@@ -681,7 +645,7 @@ def div_panel():
                                 card_swipe(),
                                 card2(),
                                 card3(),
-                                card_save(),
+                                #card_save(),
                                 dcc.Store(id='cal_params'),
 				dcc.Store(id='click_data'),
                                 dcc.Store(id='start_params'),
